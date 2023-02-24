@@ -121,7 +121,7 @@ function(instance, context) {
                                 let color = `0x` + child.labelColor;
                                 child
                                     .clear()
-                                    .beginFill(color, 1)
+                                    .beginFill(color, instance.data.normalColorAlpha)
                                     .drawRect(0, 0, width, height)
                                     .endFill()
                                     .beginHole()
@@ -150,7 +150,7 @@ function(instance, context) {
                             let color = `0x` + child.labelColor;
                             child
                                 .clear()
-                                .beginFill(color, 1)
+                                .beginFill(color, instance.data.normalColorAlpha)
                                 .drawRect(0, 0, width, height)
                                 .endFill()
                                 .beginHole()
@@ -334,57 +334,57 @@ function(instance, context) {
 
     //functions are all below----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    instance.data.createScrollBar = function(mainContainer, pixiApp, div) {
-    const scrollPercent = -instance.data.mainContainer.position.y / instance.data.maxScroll;
-    console.log(`scrollPercent,createscrollbar: ${scrollPercent}`);
-    const scrollbarHeight = instance.data.app.view.height * (instance.data.app.view.height / instance.data
-        .mainContainer.height);
-    const scrollbarY = scrollPercent * (instance.data.app.view.height - scrollbarHeight);
-    const scrollBarWidth = 14;
-    const scrollbar = new PIXI.Graphics();
-    scrollbar.maxScroll = mainContainer.height - pixiApp.view.height;
-    instance.data.maxScroll = mainContainer.height - pixiApp.view.height;
-    scrollbar.interactive = true;
-    scrollbar.beginFill(0x808080);
-    scrollbar.drawRect(pixiApp.view.width - scrollBarWidth, scrollbarY, scrollBarWidth, pixiApp.view.height * (
-        pixiApp.view.height / mainContainer.height));
-    scrollbar.endFill();
-    scrollbar.addEventListener("pointerdown", (e) => {
-        //check to see if its the left click being press
-        if (e.data.button === 0) {
-            const scrollPercent = -mainContainer.position.y / scrollbar.maxScroll;
-            instance.data.scrollPositionBefore = scrollPercent;
-            const scrollbarHeight = pixiApp.view.height * (pixiApp.view.height / mainContainer.height);
-            const scrollbarY = scrollPercent * (pixiApp.view.height - scrollbarHeight);
-            div.pressed = true;
-            scrollbar.lastY = e.data.global.y;
-            instance.data.scrollBarLastY = e.client.y;
-            instance.data.scrollBarLastTop = scrollbarY;
-            scrollbar.tint = 0x808080;
-        }
-    });
-    scrollbar.addEventListener("pointerup", (e) => {
-        console.log(`scrollbar pointerup`);
-        div.pressed = false;
-        console.log(div.pressed);
-        scrollbar.tint = 0xffffff;
-    });
-    scrollbar.addEventListener("pointerupoutside", (e) => {
-        console.log(`scrollbar pointerupoutside`);
-        div.pressed = false;
-        console.log(div.pressed);
-        scrollbar.tint = 0xffffff;
-    });
-    pixiApp.stage.addChild(scrollbar);
-    
-        //New Positioning
-    const newPosition = Math.abs(scrollPercent) * (mainContainer.height - pixiApp.view.height);
-    if (newPosition) {
-        mainContainer.position.y = -newPosition;
-    }
+    instance.data.createScrollBar = function (mainContainer, pixiApp, div) {
+        const scrollPercent = -instance.data.mainContainer.position.y / instance.data.maxScroll;
+        console.log(`scrollPercent,createscrollbar: ${scrollPercent}`);
+        const scrollbarHeight = instance.data.app.view.height * (instance.data.app.view.height / instance.data
+            .mainContainer.height);
+        const scrollbarY = scrollPercent * (instance.data.app.view.height - scrollbarHeight);
+        const scrollBarWidth = 14;
+        const scrollbar = new PIXI.Graphics();
+        scrollbar.maxScroll = mainContainer.height - pixiApp.view.height;
+        instance.data.maxScroll = mainContainer.height - pixiApp.view.height;
+        scrollbar.interactive = true;
+        scrollbar.beginFill(0x808080);
+        scrollbar.drawRect(pixiApp.view.width - scrollBarWidth, scrollbarY, scrollBarWidth, pixiApp.view.height * (
+            pixiApp.view.height / mainContainer.height));
+        scrollbar.endFill();
+        scrollbar.addEventListener("pointerdown", (e) => {
+            //check to see if its the left click being press
+            if (e.data.button === 0) {
+                const scrollPercent = -mainContainer.position.y / scrollbar.maxScroll;
+                instance.data.scrollPositionBefore = scrollPercent;
+                const scrollbarHeight = pixiApp.view.height * (pixiApp.view.height / mainContainer.height);
+                const scrollbarY = scrollPercent * (pixiApp.view.height - scrollbarHeight);
+                div.pressed = true;
+                scrollbar.lastY = e.data.global.y;
+                instance.data.scrollBarLastY = e.client.y;
+                instance.data.scrollBarLastTop = scrollbarY;
+                scrollbar.tint = 0x808080;
+            }
+        });
+        scrollbar.addEventListener("pointerup", (e) => {
+            console.log(`scrollbar pointerup`);
+            div.pressed = false;
+            console.log(div.pressed);
+            scrollbar.tint = 0xffffff;
+        });
+        scrollbar.addEventListener("pointerupoutside", (e) => {
+            console.log(`scrollbar pointerupoutside`);
+            div.pressed = false;
+            console.log(div.pressed);
+            scrollbar.tint = 0xffffff;
+        });
+        pixiApp.stage.addChild(scrollbar);
 
-    return scrollbar;
-};
+        //New Positioning
+        const newPosition = Math.abs(scrollPercent) * (mainContainer.height - pixiApp.view.height);
+        if (newPosition) {
+            mainContainer.position.y = -newPosition;
+        }
+
+        return scrollbar;
+    };
     instance.data.scrollBarWindowPointerMove = function (event) {
         if (instance.data.ele.pressed) {
             const scrollPercent = -instance.data.mainContainer.position.y / instance.data.maxScroll;
@@ -1177,7 +1177,7 @@ function(instance, context) {
         color
     ) {
         let rectangle = new PIXI.Graphics()
-            .beginFill("0x" + color, 1)
+            .beginFill("0x" + color, instance.data.normalColorAlpha)
             .drawRect(x, y, width, height)
             .endFill()
             .beginHole()
