@@ -1,0 +1,233 @@
+{
+    "add_is_visible": true,
+    "can_fit_height": true,
+    "can_fit_width": true,
+    "category": "visual elements",
+    "default_dim": {
+        "height": 200,
+        "width": 400
+    },
+    "display": "PixiJS Canvas",
+    "events": {
+        "ABH": {
+            "caption": "Label selected",
+            "doc": "When a drawn label becomes selected",
+            "name": "label_selected"
+        },
+        "ABg": {
+            "caption": "Drawn Label created",
+            "doc": "Triggers when a label is drawn",
+            "name": "drawn_label_created"
+        }
+    },
+    "fields": {
+        "ABE": {
+            "caption": "Drawn Attribute Snippets",
+            "editor": "custom_type",
+            "name": "DAS_app_type",
+            "optional": true,
+            "rank": 0
+        },
+        "ABF": {
+            "caption": "Attributes",
+            "editor": "custom_type",
+            "is_list": true,
+            "name": "attributes_app_type",
+            "optional": true,
+            "rank": 2,
+            "value": "text"
+        },
+        "ABG": {
+            "caption": "Attribute Colors",
+            "editor": "DynamicValue",
+            "is_list": true,
+            "name": "attribute_colors",
+            "optional": true,
+            "rank": 4,
+            "value": "text"
+        },
+        "ABI": {
+            "caption": "Webpage Screenshot",
+            "default_val": "https://s3.amazonaws.com/appforest_uf/f1673111494359x270505643516280260/screencapture-kanbanize-lean-management-improvement-a3-problem-solving-2022-12-22-11_26_31.png",
+            "editor": "DynamicValue",
+            "name": "webpage_screenshot",
+            "optional": true,
+            "rank": 5,
+            "value": "text"
+        },
+        "ABJ": {
+            "caption": "Font",
+            "default_val": "Inter",
+            "editor": "Dropdown",
+            "name": "font",
+            "optional": true,
+            "options": "Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Helvetica,Impact,Inter,Tahoma,Times New Roman,Verdana,Georgia",
+            "rank": 6
+        },
+        "ABK": {
+            "caption": "Font Size",
+            "default_val": "20",
+            "doc": "The font size (as a number it converts to px, but as a string, equivalents are '26px','20pt','160%' or '1.6em')",
+            "editor": "DynamicValue",
+            "name": "font_size",
+            "optional": true,
+            "rank": 7,
+            "value": "text"
+        },
+        "ABL": {
+            "caption": "Font Color",
+            "doc": "HEX no #",
+            "editor": "DynamicValue",
+            "name": "labelFontColor",
+            "optional": true,
+            "rank": 8,
+            "value": "text"
+        },
+        "ABY": {
+            "caption": "Highlight Color",
+            "doc": "HEX no #",
+            "editor": "DynamicValue",
+            "name": "highlight_color",
+            "optional": true,
+            "rank": 9,
+            "value": "text"
+        },
+        "ABZ": {
+            "caption": "Drag Color",
+            "doc": "experimental HEX no #",
+            "editor": "DynamicValue",
+            "name": "drag_color",
+            "optional": true,
+            "rank": 12,
+            "value": "text"
+        },
+        "ABa": {
+            "caption": "Resize Color",
+            "doc": "experimental HEX no #",
+            "editor": "DynamicValue",
+            "name": "resize_color",
+            "optional": true,
+            "rank": 13,
+            "value": "text"
+        },
+        "ABd": {
+            "caption": "attributes",
+            "editor": "DynamicValue",
+            "is_list": true,
+            "name": "attributes",
+            "optional": true,
+            "rank": 3,
+            "value": "custom_data_ABF"
+        },
+        "ABe": {
+            "caption": "das",
+            "editor": "DynamicValue",
+            "is_list": true,
+            "name": "drawn_attribute_snippets",
+            "optional": true,
+            "rank": 1,
+            "value": "custom_data_ABE"
+        },
+        "ABl": {
+            "caption": "Account webpage type",
+            "editor": "custom_type",
+            "name": "account_webpage_type",
+            "optional": true,
+            "rank": 14
+        },
+        "ABm": {
+            "caption": "Account webpage",
+            "doc": "The account webpage the shape is being applied to",
+            "editor": "DynamicValue",
+            "name": "account_webpage",
+            "optional": true,
+            "rank": 15,
+            "value": "custom_data_ABl"
+        },
+        "ABo": {
+            "caption": "Highlight Color Opacity",
+            "doc": "0-1 value, ie. 50% is .5",
+            "editor": "DynamicValue",
+            "name": "highlight_color_alpha",
+            "rank": 10,
+            "value": "number"
+        },
+        "ABp": {
+            "caption": "changeColor",
+            "default_val": false,
+            "editor": "DynamicValue",
+            "name": "changeColor",
+            "rank": 16,
+            "value": "boolean"
+        },
+        "ABq": {
+            "caption": "Normal Color Alpha",
+            "editor": "DynamicValue",
+            "name": "normal_color_alpha",
+            "rank": 11,
+            "value": "number"
+        },
+        "ABr": {
+            "caption": "Label to Highlight",
+            "doc": "The label that is currently highlighted in the plugin",
+            "editor": "DynamicValue",
+            "name": "label_to_highlight",
+            "optional": true,
+            "rank": 17,
+            "value": "custom_data_ABF"
+        }
+    },
+    "icon": "ion-android-checkbox-blank",
+    "property_applications": {
+        "Background": true,
+        "Border": true,
+        "MinWidth": true,
+        "resizable": true
+    },
+    "states": {
+        "ABc": {
+            "caption": "AttributeID",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "is_list": false,
+            "name": "attributeid",
+            "value": "text"
+        },
+        "ABh": {
+            "caption": "Recently Created Drawing data",
+            "doc": "",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "is_list": true,
+            "name": "recently_created_drawing_data",
+            "value": "text"
+        },
+        "ABi": {
+            "caption": "Recently Created Drawn Label",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "recently_created_drawn_label",
+            "value": "custom_data_ABE"
+        },
+        "ABj": {
+            "caption": "Currently Selected Drawing",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "currently_selected_drawing",
+            "value": "custom_data_ABE"
+        },
+        "ABn": {
+            "caption": "Scroll depth",
+            "doc": "How far the canvas has been scrolled",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "scroll_depth",
+            "value": "number"
+        }
+    }
+}

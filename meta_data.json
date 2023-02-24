@@ -1,0 +1,13 @@
+{
+    "categories": {
+        "0": "analytics",
+        "1": "containers"
+    },
+    "demo_page": "",
+    "description": "A plugin that uses PixiJS to allow us to draw and manage webpage screenshots.",
+    "image": "//s3.amazonaws.com/appforest_uf/f1675462696014x705523406260476500/DALL%C2%B7E%202023-02-03%2014.16.49%20-%20a%20artist%20drawing%20a%20lowercase%20b%20on%20a%20painters%20canvas%2C%20that%20has%20pixi%20dust%20flying%20in.png",
+    "license": "private",
+    "link": "",
+    "name": "PixiJS Canvas Syllabus",
+    "plugin_instructions": ""
+}

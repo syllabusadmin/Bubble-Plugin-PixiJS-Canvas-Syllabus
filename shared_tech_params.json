@@ -1,0 +1,28 @@
+{
+    "assets": {
+        "AAY": {
+            "name": "viewport",
+            "url": "//meta.cdn.bubble.io/f1672959275024x636699737931173000/viewport.js"
+        },
+        "AAZ": {
+            "name": "viewport2",
+            "url": "//meta.cdn.bubble.io/f1672959961638x141754102381229870/viewport2.js"
+        },
+        "ABN": {
+            "name": "test_data",
+            "url": "//meta.cdn.bubble.io/f1675103570470x387904973283663040/test_data.js"
+        },
+        "ABS": {
+            "name": "style",
+            "url": "//meta.cdn.bubble.io/f1675105131476x384308448563506600/style.css"
+        },
+        "ABX": {
+            "name": "PIXI_130_9",
+            "url": "//meta.cdn.bubble.io/f1675116110584x117676863730037390/pixi_functions_123_9.js"
+        }
+    },
+    "dependencies": {
+        "plugin_api_version": 3,
+        "use_jquery": false
+    }
+}
