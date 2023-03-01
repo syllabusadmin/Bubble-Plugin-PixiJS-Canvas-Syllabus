@@ -30,6 +30,7 @@ function(instance, context) {
     instance.data.rectangleBeingResized;
     instance.data.rectangleBeingMoved;
     instance.data.changeColor = false;
+    instance.data.screenshot;
 
     // Input modes for input
     instance.data.InputModeEnum = {
