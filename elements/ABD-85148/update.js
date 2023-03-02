@@ -135,58 +135,53 @@ function(instance, properties, context) {
                 mainContainer.addChild(webpageSprite);
                 mainContainer.interactive = true;
 
+                //add the intial event listeners that are on the main container. These work even after the Bubble element swaps in new content.
                 if (!instance.data.addedMainContainerEventListeners) {
                     mainContainer.on('pointerdown', (e) => {
+                        //makes sure it's left click
                         if (e.data.button === 0) {
-
-                            // Initiate rect creation
-                            if (instance.data.inputMode == instance.data.InputModeEnum.create) {
+                            if (instance.data.proxyVariables.inputMode == instance.data.InputModeEnum.create) {
                                 instance.data.startPosition = new PIXI.Point().copyFrom(e.global)
-                                instance.data.logging ? console.log("pointerdown", instance.data.startPosition) : null;
-                                instance.publishState("currently_selected_drawing", null)
+
+                                //clear the selected rectangle because we clicked on nothing and we're drawing a new rectangle. This also publishes the state of the selected rectangle.
                                 instance.data.proxyVariables.selectedRectangle = null;
-                                instance.data.proxyVariables.rectangleBeingMoved = null;
-
-
                             }
+
                             if (instance.data.inputMode == instance.data.InputModeEnum.select) {
-                                //PLACEHOLDER for select function
                                 instance.data.selectRect(e.target);
                             }
                         }
                     });
-                    mainContainer.addEventListener('pointerupoutside', (e) => {
 
-                        console.log("pointerupoutside", e)
-                    }, { passive: true });
                     mainContainer.on('pointermove', (e) => {
 
+                        //if we're in create mode, make sure the cursor is updated, because it doesn't seem to update until the mouse has moved
                         if (instance.data.proxyVariables.inputMode == instance.data.InputModeEnum.create && mainContainer.cursor !== "crosshair") {
                             mainContainer.cursor = "crosshair";
                         }
 
-
-
-
-
                         // Do this routine only if in create mode and have started creation
                         // this event triggers all the time but we stop it by not providing start postition when cursor not pressed
                         if (instance.data.inputMode == instance.data.InputModeEnum.create && instance.data.startPosition && instance.data.proxyVariables.rectangleBeingMoved == null && instance.data.proxyVariables.rectangleBeingResized == null) {
-
+                            // disable all other interactions on the main container so we don't lose control moving over another rectangle. Maybe don't need to run this every time?
                             instance.data.mainContainer.children.forEach(child => {
                                 if (child.name !== "webpage") {
-                                    child.interactive = false;
+                                    if (child.interactive) {
+                                        child.interactive = false;
+                                    }
                                 }
                             })
+
                             // get new global position from event
                             let currentPosition = e.global;
                             let {
                                 start,
                                 size
                             } = instance.data.getStartAndSize(currentPosition, instance.data.startPosition, "draw")
+
+                            // if the size is greater than 5x5, draw the rectangle
                             if (size.x > 5 && size.y > 5) {
                                 if (!instance.data.currentRectangle) {
-                                    console.log(`creating new rect`)
                                     instance.data.currentRectangle = new PIXI.Graphics().beginFill("0x" + instance.data.highlightColor, instance.data.highlightColorAlpha)
                                         .lineStyle({
                                             color: "0x" + instance.data.highlightColor,

@@ -141,6 +141,7 @@ function(instance, context) {
                 //it also prevents this from running if we're changing the value from null to null
                 else if (!value && previousValue) {
                     console.log(`the selected attribute is null & hasn't changed to something`, value);
+                    instance.publishState("currently_selected_drawing", null)
                     instance.data.mainContainer.children.forEach((child) => {
                         if (child.name !== "webpage" && child.isHighlighted) {
                             child.isSelected = false;
@@ -1112,9 +1113,6 @@ function(instance, context) {
     };
     instance.data.selectRect = function (rectangle) {
         instance.data.proxyVariables.selectedRectangle = rectangle;
-
-        console.log(`selectRect, rectangle data values`, rectangle.id)
-
     };
 
     instance.data.onDragMoveNew = function (event) {
