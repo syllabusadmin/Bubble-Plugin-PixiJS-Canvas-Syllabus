@@ -16,9 +16,13 @@
             "name": "style",
             "url": "//meta.cdn.bubble.io/f1675105131476x384308448563506600/style.css"
         },
-        "ABX": {
-            "name": "PIXI_130_9",
-            "url": "//meta.cdn.bubble.io/f1675116110584x117676863730037390/pixi_functions_123_9.js"
+        "ABs": {
+            "name": "PIXI 7.1.4 Production minified",
+            "url": "//meta.cdn.bubble.io/f1677787010954x589161190330918000/pixi.min.js"
+        },
+        "ABt": {
+            "name": "canvas screenshot preview",
+            "url": "//meta.cdn.bubble.io/f1677787035935x986844379014684400/canvas%20example%20screenshot.png"
         }
     },
     "dependencies": {

@@ -7,7 +7,7 @@
         "height": 200,
         "width": 400
     },
-    "display": "PixiJS Canvas test",
+    "display": "PixiJS Canvas",
     "events": {
         "ABH": {
             "caption": "Label selected",
@@ -23,13 +23,15 @@
     "fields": {
         "ABE": {
             "caption": "Drawn Attribute Snippets",
+            "doc": "The app type of the drawings.",
             "editor": "custom_type",
             "name": "DAS_app_type",
             "optional": true,
             "rank": 0
         },
         "ABF": {
-            "caption": "Attributes",
+            "caption": "Labels/Attributes app type",
+            "doc": "the app type of the attribute/labels.",
             "editor": "custom_type",
             "is_list": true,
             "name": "attributes_app_type",
@@ -39,6 +41,7 @@
         },
         "ABG": {
             "caption": "Attribute Colors",
+            "doc": "The list of colors that each label has, in the same order as the labels list.",
             "editor": "DynamicValue",
             "is_list": true,
             "name": "attribute_colors",
@@ -47,8 +50,9 @@
             "value": "text"
         },
         "ABI": {
-            "caption": "Webpage Screenshot",
+            "caption": "Webpage Screenshot URL",
             "default_val": "https://s3.amazonaws.com/appforest_uf/f1673111494359x270505643516280260/screencapture-kanbanize-lean-management-improvement-a3-problem-solving-2022-12-22-11_26_31.png",
+            "doc": "Should be formatted as the exact url to the image: https://screenshot.com/j128dh1",
             "editor": "DynamicValue",
             "name": "webpage_screenshot",
             "optional": true,
@@ -58,11 +62,12 @@
         "ABJ": {
             "caption": "Font",
             "default_val": "Inter",
+            "doc": "The font of all text in the canvas.",
             "editor": "Dropdown",
             "name": "font",
             "optional": true,
             "options": "Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Helvetica,Impact,Inter,Tahoma,Times New Roman,Verdana,Georgia",
-            "rank": 6
+            "rank": 9
         },
         "ABK": {
             "caption": "Font Size",
@@ -71,47 +76,48 @@
             "editor": "DynamicValue",
             "name": "font_size",
             "optional": true,
-            "rank": 7,
+            "rank": 10,
             "value": "text"
         },
         "ABL": {
             "caption": "Font Color",
-            "doc": "HEX no #",
+            "doc": "HEX code with no # before",
             "editor": "DynamicValue",
             "name": "labelFontColor",
             "optional": true,
-            "rank": 8,
+            "rank": 11,
             "value": "text"
         },
         "ABY": {
             "caption": "Highlight Color",
-            "doc": "HEX no #",
+            "doc": "HEX code with no # before",
             "editor": "DynamicValue",
             "name": "highlight_color",
-            "optional": true,
-            "rank": 9,
-            "value": "text"
-        },
-        "ABZ": {
-            "caption": "Drag Color",
-            "doc": "experimental HEX no #",
-            "editor": "DynamicValue",
-            "name": "drag_color",
             "optional": true,
             "rank": 12,
             "value": "text"
         },
+        "ABZ": {
+            "caption": "Drag Color",
+            "doc": "Not working: change the color while dragging a shape. experimental HEX code with no # before",
+            "editor": "DynamicValue",
+            "name": "drag_color",
+            "optional": true,
+            "rank": 15,
+            "value": "text"
+        },
         "ABa": {
             "caption": "Resize Color",
-            "doc": "experimental HEX no #",
+            "doc": "Not working: change the color while resizing a shape. HEX code with no # before",
             "editor": "DynamicValue",
             "name": "resize_color",
             "optional": true,
-            "rank": 13,
+            "rank": 16,
             "value": "text"
         },
         "ABd": {
-            "caption": "attributes",
+            "caption": "Labels/Attributes",
+            "doc": "The list of labels/attributes that each drawing has, this should have the same order as the list of drawings.",
             "editor": "DynamicValue",
             "is_list": true,
             "name": "attributes",
@@ -120,7 +126,8 @@
             "value": "custom_data_ABF"
         },
         "ABe": {
-            "caption": "das",
+            "caption": "Drawn Attribute Snippets",
+            "doc": "The list of drawn labels/attributes to apply to the canvas.",
             "editor": "DynamicValue",
             "is_list": true,
             "name": "drawn_attribute_snippets",
@@ -133,15 +140,15 @@
             "editor": "custom_type",
             "name": "account_webpage_type",
             "optional": true,
-            "rank": 14
+            "rank": 6
         },
         "ABm": {
             "caption": "Account webpage",
-            "doc": "The account webpage the shape is being applied to",
+            "doc": "The account webpage the shape is being applied to.",
             "editor": "DynamicValue",
             "name": "account_webpage",
             "optional": true,
-            "rank": 15,
+            "rank": 7,
             "value": "custom_data_ABl"
         },
         "ABo": {
@@ -149,22 +156,15 @@
             "doc": "0-1 value, ie. 50% is .5",
             "editor": "DynamicValue",
             "name": "highlight_color_alpha",
-            "rank": 10,
+            "rank": 13,
             "value": "number"
-        },
-        "ABp": {
-            "caption": "changeColor",
-            "default_val": false,
-            "editor": "DynamicValue",
-            "name": "changeColor",
-            "rank": 16,
-            "value": "boolean"
         },
         "ABq": {
             "caption": "Normal Color Alpha",
+            "doc": "0-1 value, ie. 50% is .5",
             "editor": "DynamicValue",
             "name": "normal_color_alpha",
-            "rank": 11,
+            "rank": 14,
             "value": "number"
         },
         "ABr": {
@@ -173,7 +173,7 @@
             "editor": "DynamicValue",
             "name": "label_to_highlight",
             "optional": true,
-            "rank": 17,
+            "rank": 8,
             "value": "custom_data_ABF"
         }
     },
@@ -185,18 +185,9 @@
         "resizable": true
     },
     "states": {
-        "ABc": {
-            "caption": "AttributeID",
-            "initialization_code": {
-                "fn": "function(properties, context) {\n\n\n\n}"
-            },
-            "is_list": false,
-            "name": "attributeid",
-            "value": "text"
-        },
         "ABh": {
             "caption": "Recently Created Drawing data",
-            "doc": "",
+            "doc": "This is raw data as an array. Mostly for testing. May be irrelevant now.",
             "initialization_code": {
                 "fn": "function(properties, context) {\n\n\n\n}"
             },
