@@ -100,11 +100,9 @@ function(instance, properties, context) {
 
 
         //start setting up pixi and the main container
-        PIXI.settings.ROUND_PIXELS = true;
         instance.data.mainContainer = new PIXI.Container();
         //redundent but allows us to work with the instanced mainContainer variable by using mainContainer
         instance.data.mainContainer = mainContainer;
-        mainContainer.name = "mainContainer";
         instance.data.app.stage.addChild(mainContainer);
 
         instance.data.start = false;
@@ -197,7 +195,8 @@ function(instance, properties, context) {
                                     instance.data.addLabel(instance.data.currentRectangle);
                                     mainContainer.addChild(instance.data.currentRectangle)
                                 } else {
-                                    instance.data.scaleRectB(instance.data.currentRectangle, currentPosition)
+                                    //if we already have a rectangle, scale it instead of creating it
+                                    instance.data.resizeNewRectangle(instance.data.currentRectangle, currentPosition)
                                 }
                             } else {
                                 if (instance.data.currentRectangle) {
@@ -266,7 +265,7 @@ function(instance, properties, context) {
                                 // Mouse & touch events are normalized into
                                 // the pointer* events for handling different
                                 // Rectangle events.
-                                .on('pointerover', instance.data.onRectangleOver).on('pointerout', instance.data.onRectangleOut);
+                                .on('pointerover', instance.data.onRectangleOver)
 
                             instance.data.currentRectangle.initialScale = instance.data.app.view.width / instance.data.intialWebpageWidth;
 
@@ -373,7 +372,6 @@ function(instance, properties, context) {
                             instance.data.rectangleBeingMoved = null;
                         }
                         instance.data.proxyVariables.rectangleBeingMoved = null;
-                        instance.data.movingRectangle = null;
                         instance.data.rectangleBeingResized = null;
                         instance.data.proxyVariables.rectangleBeingResized = null;
 
