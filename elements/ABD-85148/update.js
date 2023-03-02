@@ -1,46 +1,46 @@
 function(instance, properties, context) {
+
+    // Get the account web page ID and label to highlight from properties
     instance.data.accountWebPageID = properties.account_webpage?.get(`_id`);
     instance.data.proxyVariables.labelToHighlight = properties.label_to_highlight?.get(`_id`);
 
-    //local variable for the pixi maincontainer that makes it easier to type
+    // Local variable for the PIXI main container that makes it easier to type
     const mainContainer = instance.data.mainContainer;
 
+    // Get the key lists for the drawn attribute snippets and attributes, and log them to the console
     const keyListDAS = properties.drawn_attribute_snippets.get(0, properties.drawn_attribute_snippets.length())[0]?.listProperties();
     const keyListAtt = properties.attributes.get(0, properties.attributes.length())[0]?.listProperties();
-    console.log(keyListAtt, keyListDAS)
-    var labelsOrigin = properties.attributes.get(0, properties.attributes.length());
-    var labels = labelsOrigin;
+    console.log(keyListAtt, keyListDAS);
 
+    // Get the label data from properties and store it in local variables
+    let labelsOrigin = properties.attributes.get(0, properties.attributes.length());
+    let labels = labelsOrigin;
 
-    if (properties.attribute_colors) {
-        var labelColors = properties.attribute_colors.get(0, properties.attribute_colors.length());
-    }
+    // Get the label colors from properties, if available
+    const labelColors = properties.attribute_colors?.get(0, properties.attribute_colors.length());
+
+    // Store other properties in instance data variables for use in other functions and conditional statements in update
     instance.data.webpageScreenshot = properties.webpage_screenshot;
     instance.data.labelFont = properties.font;
     instance.data.labelFontSize = properties.font_size;
     instance.data.labelFontColor = properties.labelFontColor;
-
-    //get the entire list of attributes/labels from the
     instance.data.dasOrigin = properties.drawn_attribute_snippets.get(0, properties.drawn_attribute_snippets.length());
-    instance.data.highlightColor = properties.highlight_color; //yellow
+    instance.data.highlightColor = properties.highlight_color; // yellow
     instance.data.highlightColorAlpha = properties.highlight_color_alpha;
     instance.data.normalColorAlpha = properties.normal_color_alpha;
-    instance.data.dragColor = properties.drag_color; //red
+    instance.data.dragColor = properties.drag_color; // red
     instance.data.resizeColor = properties.resize_color;
+
+    // Loop through the drawn attribute snippets and set the label attributes
     let drawnAttributeSnippets = instance.data.dasOrigin;
-
-
-
     drawnAttributeSnippets.forEach((das, index) => {
-        das.labelUniqueID = das.get('attribute')
-        if (labels[index] && labelColors[index]) {
+        das.labelUniqueID = das.get('attribute');
+        if (labels[index] && labelColors?.[index]) {
             das.attributeName = labels[index].get('name_text');
             das.attributeId = labels[index].get('_id');
             das.labelColor = labelColors[index].slice(1);
         }
     });
-
-
 
     //run this once to setup some things
     if (instance.data.start) {
