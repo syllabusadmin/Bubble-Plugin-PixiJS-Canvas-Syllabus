@@ -265,6 +265,49 @@ function(instance, context) {
 
         return scrollbar;
     };
+    instance.data.scrollCanvas = function (event) {
+        document.body.style.overflowY = "hidden";
+        let maxScroll = instance.data.mainContainer.height - instance.data.app.view.height;
+        console.log(`the scrollbar during creation is`, instance.data.scrollBar)
+
+
+
+        // Update the container's y position based on the mouse wheel delta
+        instance.data.mainContainer.position.y -= event.deltaY;
+
+        // Clamp the container's position so that it can't scroll past the max scroll value
+        if (instance.data.mainContainer.position.y <= instance.data.mainContainer.height) {
+            instance.data.mainContainer.position.y = Math.max(
+                instance.data.mainContainer.position.y,
+                -maxScroll
+            );
+            instance.data.mainContainer.position.y = Math.min(instance.data.mainContainer.position.y, 0);
+        }
+
+        // Update the scrollbar position and size based on the container's scroll position
+        const scrollPercent = -instance.data.mainContainer.position.y / maxScroll;
+        instance.data.scrollPositionBefore = scrollPercent;
+        const scrollbarHeight =
+            instance.data.app.view.height * (instance.data.app.view.height / instance.data.mainContainer.height);
+        const scrollbarY = scrollPercent * (instance.data.app.view.height - scrollbarHeight);
+        if (instance.data.scrollBar?.clear) {
+            instance.data.scrollBar.clear();
+        }
+        instance.data.scrollBar.beginFill(0x808080);
+        instance.data.scrollBar.drawRect(
+            instance.data.app.view.width - 14,
+            scrollbarY,
+            14,
+            scrollbarHeight
+        );
+        instance.data.scrollBar.endFill();
+        clearTimeout(instance.data.scrollingTimeout);
+        instance.data.scrollingTimeout = setTimeout(() => {
+            console.log("Show the content again because the user stopped scrolling");
+            document.body.style.overflow = "auto";
+        }, 1000);
+        instance.publishState("scroll_depth", instance.data.mainContainer.position.y)
+    }
 
     //controls the scroll bar when the mouse is moved
     instance.data.scrollBarWindowPointerMove = function (event) {
