@@ -564,13 +564,9 @@ function(instance, context) {
 
                 instance.data.updateDrawnLabel(instance.data.proxyVariables.rectangleBeingResized.x, instance.data.proxyVariables.rectangleBeingResized.y, instance.data.proxyVariables.rectangleBeingResized.width, instance.data.proxyVariables.rectangleBeingResized.height, drawnScale, instance.data.proxyVariables.rectangleBeingResized.id)
             }
-
-
             instance.data.proxyVariables.rectangleBeingMoved = null;
             instance.data.rectangleBeingResized = null;
             instance.data.proxyVariables.rectangleBeingResized = null;
-
-
         }, { passive: true });
 
     };
@@ -708,6 +704,3 @@ function(instance, context) {
             );
     }
 }
-
-
-
