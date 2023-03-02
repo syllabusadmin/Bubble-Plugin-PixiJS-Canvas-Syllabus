@@ -153,7 +153,7 @@ function(instance, properties, context) {
                         }
                     });
 
-                    mainContainer.on('pointermove', (e) => {
+                    mainContainer.addEventListener('pointermove', (e) => {
 
                         //if we're in create mode, make sure the cursor is updated, because it doesn't seem to update until the mouse has moved
                         if (instance.data.proxyVariables.inputMode == instance.data.InputModeEnum.create && mainContainer.cursor !== "crosshair") {
@@ -254,8 +254,8 @@ function(instance, properties, context) {
                             console.log(`rectCreated-resize graphic`, resizingRectangle.width, resizingRectangle.height);
 
                         }
-                    });
-                    mainContainer.on('pointerup', (e) => {
+                    }, { passive: true });
+                    mainContainer.addEventListener('pointerup', (e) => {
                         console.log(`main container pointer up`)
 
                         // Wrap up rect creation
@@ -356,9 +356,6 @@ function(instance, properties, context) {
                             bodyContent.append("initial_drawn_scale", drawnScale)
                             bodyContent.append("drawn_label_snippet", instance.data.rectangleBeingMoved.id);
 
-
-
-
                             fetch(`https://app.syllabus.io/${instance.data.dynamicFetchParam}api/1.1/wf/update-drawn-label`, {
                                 method: "POST",
                                 body: bodyContent,
@@ -381,14 +378,11 @@ function(instance, properties, context) {
                         instance.data.proxyVariables.rectangleBeingResized = null;
 
 
-                        instance.data.onDragEndNew()
-                    });
-                    //load our data
-                    mainContainer.on('pointerupoutside', instance.data.onDragEndNew);
+                    }, { passive: true });
+
                     mainContainer.addEventListener("pointermove", e => {
 
-
-
+                        //set the input mode to create if we're not in create mode and the container is moved over. This should probably be moved into the other pointermove event listener
                         if (instance.data.proxyVariables.inputMode !== instance.data.InputModeEnum.create && !instance.data.proxyVariables.rectangleBeingMoved) {
                             console.log(`we're not in create mode`)
                             instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.create
@@ -398,23 +392,19 @@ function(instance, properties, context) {
                         }
                     }, { passive: true })
 
-                    mainContainer.interactive = true;
-                    mainContainer.hitArea = mainContainer.screen;
                     instance.data.addedMainContainerEventListeners = true;
                 }
+                //this officially loads the drawn attribute snippet. It's a ternary because we wanted to toggle it on/off for testing
                 instance.data.loadData ? instance.data.loadDAS(instance.data.dasOrigin) : null;
+
+
+                //destroy and recreate the scroll bar if it exists. Just create it normally otherwise. Create the necessary event listeners
                 if (instance.data.scrollBar) {
                     instance.data.scrollBar.destroy();
                 }
                 instance.data.scrollBar = instance.data.createScrollBar(instance.data.mainContainer, instance.data.app, instance.data.ele);
-                instance.data.createdScrollBar = true;
                 instance.data.ele.addEventListener("wheel", instance.data.scrollCanvas, { passive: true })
                 window.addEventListener("pointermove", instance.data.scrollBarWindowPointerMove, { passive: true })
-
-                setTimeout(() => {
-                    instance.data.app.resize();
-                }, 100)
-
             });
         }, 200)
     }
