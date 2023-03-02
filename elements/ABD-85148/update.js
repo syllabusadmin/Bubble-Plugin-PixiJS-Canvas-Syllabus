@@ -27,7 +27,6 @@ function(instance, properties, context) {
     instance.data.normalColorAlpha = properties.normal_color_alpha;
     instance.data.dragColor = properties.drag_color; //red
     instance.data.resizeColor = properties.resize_color;
-    instance.data.changeColor = properties.changeColor;
     let drawnAttributeSnippets = instance.data.dasOrigin;
 
 

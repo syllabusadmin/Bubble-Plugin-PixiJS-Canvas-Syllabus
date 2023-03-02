@@ -1,13 +1,8 @@
 function(instance, context) {
     //intialize instance variables
     instance.data.start = true;
-    instance.data.addedScreenshot = false;
     instance.data.logging = true;
-    instance.data.logDrag = false;
-    instance.data.logResize = false;
-    instance.data.logRectEvents = false;
     instance.data.loadData = true;
-    instance.data.logEvents = false;
     instance.data.randomElementID = `pixi-${Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)}`
     instance.data.webpageScreenshot;
     instance.data.labelFont = "Inter";
@@ -17,18 +12,13 @@ function(instance, context) {
     instance.data.highlightColorAlpha = .3;
     instance.data.dasOrigin;
     instance.data.addedMainContainerEventListeners = false;
-    instance.data.createdScrollBar = false;
-    instance.data.originalWebsiteScreenshotURL;
-    instance.data.scrollingTimeout;
     instance.data.maxScroll = .1;
     instance.data.scrollBarLastY;
     instance.data.scrollBarLastTop;
     instance.data.scrollPositionBefore = 0;
     instance.data.accountWebPageID;
-    instance.data.scalingShape;
-    instance.data.rectangleBeingResized;
-    instance.data.rectangleBeingMoved;
-    instance.data.changeColor = false;
+    instance.data.rectangleBeingResized; //to be replaced by proxy
+    instance.data.rectangleBeingMoved; //to be replaced by proxy
     instance.data.screenshot;
     instance.data.imgixBaseURL = `https://d1muf25xaso8hp.cloudfront.net/`;
     instance.data.dynamicFetchParam;
@@ -345,8 +335,6 @@ function(instance, context) {
                 "width": currentScaleFactorWidth,
                 "height": currentScaleFactorHeight
             }
-
-            instance.data.logging ? console.log("createCoord", createCoord) : null;
             //stop small box creation - Placeholder
             if (createCoord.width < 20) return;
             if (createCoord.height < 20) return;
@@ -595,7 +583,6 @@ function(instance, context) {
         instance.data.inputMode = instance.data.InputModeEnum.select;
         instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.select;
         // set current hovered rect to be on the top
-        instance.data.bringToFront(this);
 
     };
 
@@ -631,83 +618,7 @@ function(instance, context) {
         }
     };
 
-    //these two are slightly different, could probably be combined
-    const scaleRect = function (resizeRectange, dragController) {
-        instance.data.scalingShape = resizeRectange;
-
-        //currentPosition)
-        let { start, size } = instance.data.getStartAndSize(
-            instance.data.startPosition,
-            dragController.position,
-            "scaleRect"
-        );
-        if (size.x < 20 || size.y < 20) return;
-        // When we scale rect we have to give it new cordinates so we redraw it
-        // in case of sprite we would do this a bit differently with scale property,
-        // for simple geometry this is better solution because scale propagates to children
-
-        let startPositionController = new PIXI.Point(
-            dragController.position.x - 20,
-            dragController.position.y - 20
-        );
-        resizeRectange.clear();
-        resizeRectange.position.copyFrom(start);
-        resizeRectange
-            .beginFill("0x" + instance.data.resizeColor, 0.5)
-            .lineStyle({
-                color: 0x111111,
-                alpha: 0.5,
-                width: 1,
-            })
-            .drawRect(0, 0, size.x, size.y)
-            .endFill();
-
-        dragController.position.copyFrom(startPositionController);
-        clearTimeout(instance.data.resizeTimeout);
-        instance.data.resizeTimeout = setTimeout(() => {
-            console.log(`finished resizing`);
-            console.log(`resizeRectange`, resizeRectange);
-            console.log(`resizeRectange.position`, resizeRectange.position.x);
-            console.log(`resizeRectange.width`, resizeRectange.width);
-            console.log(`resizeRectange.height`, resizeRectange.height);
-            console.log(`resizeRectange.scale`, resizeRectange.scale);
-            console.log(`resizeRectange.intialScale`, resizeRectange.intialScale);
-
-            //update the shape in the database
-            // let headersList = {
-            //     "Accept": "*/*",
-            // }
-
-            // let bodyContent = new FormData();
-            // bodyContent.append("x", resizeRectange.position.x);
-            // bodyContent.append("y", resizeRectange.position.y);
-            // bodyContent.append("width", resizeRectange.width);
-            // bodyContent.append("height", resizeRectange.height);
-            // bodyContent.append("drawn_label_snippet", `1675323839778x532947159105875200`);
-
-            // fetch("https://app.syllabus.io/version-steven-canvas-implementat/api/1.1/wf/update-drawn-label", {
-            //     method: "POST",
-            //     body: bodyContent,
-            //     headers: headersList
-            // }).then(response => response.json())
-            //     .then(result => {
-            //         let newID = result.response.drawn_attribute_snippet._id;
-            //         console.log(`the new id`, newID);
-            //         console.log(result.response);
-            //         console.log(result.response.drawn_attribute_snippet);
-            //         console.log(result.response.drawn_attribute_snippet._id);
-            //     })
-        }, 100);
-        instance.data.rectangleBeingResized = resizeRectange;
-        console.log(
-            "scaleRect, startPos, startPosController,dragcontroller,mainContainer",
-            instance.data.startPosition,
-            startPositionController,
-            dragController.position,
-            instance.data.mainContainer.position
-        );
-    };
-
+    //this is triggered during the creation of a new rectangle. It's triggered after the intial rect was created
     instance.data.resizeNewRectangle = function (resizeRectange, currentPosition) {
         let { start, size } = instance.data.getStartAndSize(instance.data.startPosition, currentPosition, "draw");
         if (size.x < 5 || size.y < 5) return;
@@ -727,82 +638,12 @@ function(instance, context) {
         instance.data.mainContainer.addChild(resizeRectange);
     };
 
-    instance.data.moveRect = function (resizeRectange, dragController) {
-        // Move control is on right side
-        // and our rect is anchored on the left we substact width of rect
-        let startPosition = new PIXI.Point(
-            dragController.position.x - resizeRectange.width,
-            dragController.position.y
-        );
-        let startPositionController = new PIXI.Point(
-            dragController.position.x - 18,
-            dragController.position.y + 23
-        );
-        // we just move the start position
-        resizeRectange.position.copyFrom(startPosition);
-        dragController.position.copyFrom(startPositionController);
-
-        console.log(`moverect`, resizeRectange)
-        instance.data.rectangleBeingMoved = resizeRectange;
-
-    };
+    //triggers the selection of a rectangle. Probably not necessary anymore because of the proxy variables
     instance.data.selectRect = function (rectangle) {
         instance.data.proxyVariables.selectedRectangle = rectangle;
     };
 
-    instance.data.onDragMoveNew = function (event) {
-        if (instance.data.dragController) {
-            // move control icon (move or scale icon)
-            instance.data.dragController.parent.toLocal(
-                event.data.global,
-                null,
-                instance.data.dragController.position
-            );
-            if (instance.data.inputMode == instance.data.InputModeEnum.scale) {
-                // handle rect scale
-
-                scaleRect(instance.data.currentRectangle, instance.data.dragController);
-            }
-            if (instance.data.inputMode == instance.data.InputModeEnum.move) {
-                // handle rect move
-                instance.data.moveRect(instance.data.currentRectangle, instance.data.dragController);
-            }
-        }
-    };
-
-    instance.data.onDragStartNew = function () {
-        // start drag of controller
-        // and set parameters
-        this.controller.alpha = 0.5;
-        instance.data.dragController = this.controller;
-        instance.data.currentRectangle = this.edit;
-        instance.data.startPosition = new PIXI.Point().copyFrom(this.edit.position);
-        instance.data.inputMode = this.mode;
-        instance.data.mainContainer.on("pointermove", instance.data.onDragMoveNew);
-    };
-
-    instance.data.onDragEndNew = function () {
-
-    };
-
-    ///experimental
-    instance.data.bringToFront = function (sprite) {
-        var sprite = typeof sprite != "undefined" ? sprite.target || sprite : this;
-        var parent = sprite.parent || {
-            children: false,
-        };
-        if (parent.children) {
-            for (var keyIndex in sprite.parent.children) {
-                if (sprite.parent.children[keyIndex] === sprite) {
-                    sprite.parent.children.splice(keyIndex, 1);
-                    break;
-                }
-            }
-            parent.children.push(sprite);
-        }
-    };
-    //load our data
-
+    //this generates our standard rectangle style. It's used when we create a new rectangle. Simply returns the graphic object that can be used elsewhere
     instance.data.createBorderedRectangle = function (
         x,
         y,
@@ -820,25 +661,21 @@ function(instance, context) {
         return rectangle;
     };
 
-    instance.data.createHighlightedRectangle = function (
-        x, y, width, height) {
+    // This generates our highlighted rectangle style.
+    instance.data.createHighlightedRectangle = function (x, y, width, height) {
         let rectangle = new PIXI.Graphics()
             .beginFill("0x" + instance.data.highlightColor, instance.data.highlightColorAlpha)
             .lineStyle(1, 0x000000, 1)
             .drawRect(x, y, width, height)
-            .endFill()
-
-
+            .endFill();
 
         rectangle.isHighlighted = true;
 
         return rectangle;
-
-
     }
 
-    // this function runs a post call to our API to update the drawn label
-    //simply run this to update the drawn label in Bubble
+    // this function runs a fetch API call to our API to update the drawn label
+    //simply run this to update the drawn label in Bubble. We just need to pass it the details of the shape and it will update what is necessary.
     instance.data.updateDrawnLabel = function (x, y, width, height, initial_drawn_scale, drawn_label_snippet) {
         // Set the headers list
         let headersList = {
@@ -861,23 +698,15 @@ function(instance, context) {
             headers: headersList
         }).then(response => response.json())
             .then(result => {
-                // Get the new ID from the result
-                let newID = result.response.drawn_attribute_snippet._id;
-                // Log some information to the console
-                console.log(`the new id`, newID);
-                console.log(result.response);
-                console.log(result.response.drawn_attribute_snippet);
-                console.log(result.response.drawn_attribute_snippet._id);
+                //return nothing here for now. Maybe used for local rendering instead in the future, if the update function runs too slow
                 return result
-            }).catch(error => {
+            })
+            .catch(error => {
                 console.log(error);
                 throw error
             }
             );
     }
-
-    console.log(`instance.data.updateDrawnLabel`, instance.data.updateDrawnLabel)
-
 }
 
 
