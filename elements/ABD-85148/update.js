@@ -1,208 +1,52 @@
 function(instance, properties, context) {
-    console.log("update is running", properties);
+
+    // Get the account web page ID and label to highlight from properties
     instance.data.accountWebPageID = properties.account_webpage?.get(`_id`);
     instance.data.proxyVariables.labelToHighlight = properties.label_to_highlight?.get(`_id`);
 
+    // Local variable for the PIXI main container that makes it easier to type
+    const mainContainer = instance.data.mainContainer;
 
-
-    //properties.attributes
-    //properties.attributes
-    /*
-    const keyListDAS = properties.drawn_attribute_snippets.get(0, properties.drawn_attribute_snippets.length())[0];
-    const keyListAtt = properties.attributes.get(0, properties.attributes.length())[0];
-    console.log("das",keyListDAS.listProperties(),"att",keyListAtt.listProperties());
-DAS
- ['account_webpage_custom_account_webpage', 'attribute_custom_attribute', 'box_height_number', 'box_width_number', 'corner_roundness_number', 'mobile_screenshot_custom_webpage_screenshot', 'offset_of_top__y__number', 'shape_id_text', 'shape_text', 'stroke_width_number', 'syllabus_box_side_number', 'syllabus_box_width_number', 'webpage_screenshot_custom_webpage_screenshot', 'x_coordinate__250__number', 'x_coordinate__960__number', 'x_coordinate_number', 'y_coordinate__250__number', 'y_coordinate__960__number', 'y_coordinate_number', 'Created By', 'Slug', 'Created Date', 'Modified Date', '_id']
-ATT
-['account_custom_zaccount', 'average_distance_from_top_number', 'color_option_attribute_colors', 'description_text', 'last_used_date', 'name_search_text', 'name_text', 'related_webpages_list_custom_account_webpage', 'volume_number', 'Created By', 'Slug', 'Created Date', 'Modified Date', '_id']
-    */
-    console.log(properties.attributes, properties.drawn_attribute_snippets)
-    console.log(`drawn attribute property`, properties.drawn_attribute_snippets)
+    // Get the key lists for the drawn attribute snippets and attributes, and log them to the console
     const keyListDAS = properties.drawn_attribute_snippets.get(0, properties.drawn_attribute_snippets.length())[0]?.listProperties();
     const keyListAtt = properties.attributes.get(0, properties.attributes.length())[0]?.listProperties();
-    console.log(keyListAtt, keyListDAS)
-    var labelsOrigin = properties.attributes.get(0, properties.attributes.length());
-    var labels = labelsOrigin;
+    console.log(keyListAtt, keyListDAS);
 
+    // Get the label data from properties and store it in local variables
+    let labelsOrigin = properties.attributes.get(0, properties.attributes.length());
+    let labels = labelsOrigin;
 
-    //create a Json representation of your data input
-    /*
-    const labels = labelsOrigin.map(x => {
-    let obj = {}
-    keyListAtt.forEach(y => {
-        Object.assign(obj, {
-            y: x.get(y)
-        })
-    })
-    return obj
-    })
-    */
-    if (properties.attribute_colors) {
-        var labelColors = properties.attribute_colors.get(0, properties.attribute_colors.length());
-    }
+    // Get the label colors from properties, if available
+    const labelColors = properties.attribute_colors?.get(0, properties.attribute_colors.length());
+
+    // Store other properties in instance data variables for use in other functions and conditional statements in update
     instance.data.webpageScreenshot = properties.webpage_screenshot;
     instance.data.labelFont = properties.font;
     instance.data.labelFontSize = properties.font_size;
     instance.data.labelFontColor = properties.labelFontColor;
     instance.data.dasOrigin = properties.drawn_attribute_snippets.get(0, properties.drawn_attribute_snippets.length());
-    instance.data.highlightColor = properties.highlight_color; //yellow
+    instance.data.highlightColor = properties.highlight_color; // yellow
     instance.data.highlightColorAlpha = properties.highlight_color_alpha;
     instance.data.normalColorAlpha = properties.normal_color_alpha;
-    instance.data.dragColor = properties.drag_color; //red
+    instance.data.dragColor = properties.drag_color; // red
     instance.data.resizeColor = properties.resize_color;
-    instance.data.changeColor = properties.changeColor;
-    var DAS = instance.data.dasOrigin;
 
-    /*
-    var DAS = dasOrigin.map(x => {
-        let obj = {}
-        keyListDAS.forEach(y => {
-            Object.assign(obj, {
-                y: x.get(y)
-            })
-        })
-        return obj
-    })
-    */
-    DAS.forEach((das, index) => {
-        console.log(`running das foreach`)
-        console.log(`labels[index]`, labels[index])
-        console.log(`labelColors[index]`, labelColors[index])
-        das.labelUniqueID = das.get('attribute')
-
-        if (labels[index] && labelColors[index]) {
+    // Loop through the drawn attribute snippets and set the label attributes
+    let drawnAttributeSnippets = instance.data.dasOrigin;
+    drawnAttributeSnippets.forEach((das, index) => {
+        das.labelUniqueID = das.get('attribute');
+        if (labels[index] && labelColors?.[index]) {
             das.attributeName = labels[index].get('name_text');
             das.attributeId = labels[index].get('_id');
             das.labelColor = labelColors[index].slice(1);
-
         }
     });
 
-
-    console.log("dasONLoad", DAS[0]);
-    //var att = properties.att
-    var att = new Array(
-        {
-            "Latest Volume": 346,
-            "Related Webpages": ["1648649408910x887794807113668500"],
-            "Created Date": 1673375665144,
-            Name: "CTA",
-            Account: "1648562004649x223328173625704450",
-            "Modified Date": 1674151427900,
-            "Created By": "1648561974656x439262183960839300",
-            "Average Distance from top": 236,
-            Color: "4",
-            "Name Search": "cta",
-            "Last Used": 1674151426414,
-            _id: "1673375655977x752951405907542000",
-        },
-        {
-            "Latest Volume": 358,
-            "Related Webpages": [
-                "1648649408910x887794807113668500",
-                "1648649415130x341237624746570240",
-            ],
-            "Created Date": 1668510027553,
-            Name: "Attribute 3",
-            Account: "1648562004649x223328173625704450",
-            "Modified Date": 1674151407928,
-            "Created By": "1648561974656x439262183960839300",
-            "Average Distance from top": 138,
-            Color: "#ff00ff",
-            "Name Search": "attribute 3",
-            "Last Used": 1674151406474,
-            _id: "1668510026384x892836158180425700",
-        },
-        {
-            "Latest Volume": 15442,
-            "Related Webpages": [
-                "1664221313711x475501364962342100",
-                "1664223419885x108644029860312400",
-                "1664221316045x125346515221780750",
-                "1664221313698x632940115935128000",
-                "1672867250672x906510004638974000",
-                "1667262889527x858621114244434700",
-            ],
-            "Created Date": 1668800409315,
-            Name: "MY attribute",
-            Account: "1664221229355x903532045837271000",
-            "Modified Date": 1674147291058,
-            "Created By": "1664221186966x204293830276146340",
-            "Average Distance from top": 269,
-            Color: "#38761d",
-            "Name Search": "my attribute",
-            "Last Used": 1674147290378,
-            _id: "1668800394117x917004865047887900",
-        },
-        {
-            "Latest Volume": 15442,
-            "Related Webpages": [
-                "1664221313711x475501364962342100",
-                "1664223419885x108644029860312400",
-                "1664221316045x125346515221780750",
-                "1664221313698x632940115935128000",
-                "1672867250672x906510004638974000",
-                "1667262889527x858621114244434700",
-            ],
-            "Created Date": 1668800409315,
-            Name: "MY attribute",
-            Account: "1664221229355x903532045837271000",
-            "Modified Date": 1674147291058,
-            "Created By": "1664221186966x204293830276146340",
-            "Average Distance from top": 269,
-            Color: "#38761d",
-            "Name Search": "my attribute",
-            "Last Used": 1674147290378,
-            _id: "1668800394117x917004865047887900",
-        },
-        {
-            "Latest Volume": 15442,
-            "Related Webpages": [
-                "1664221313711x475501364962342100",
-                "1664223419885x108644029860312400",
-                "1664221316045x125346515221780750",
-                "1664221313698x632940115935128000",
-                "1672867250672x906510004638974000",
-                "1667262889527x858621114244434700",
-            ],
-            "Created Date": 1668800409315,
-            Name: "MY attribute",
-            Account: "1664221229355x903532045837271000",
-            "Modified Date": 1674147291058,
-            "Created By": "1664221186966x204293830276146340",
-            "Average Distance from top": 269,
-            Color: "#38761d",
-            "Name Search": "my attribute",
-            "Last Used": 1674147290378,
-            "_id": "1668800394117x917004865047887900"
-        });
-    //var colors = properties.colors;
-    var colors = new Array("57d9a3", "ff00ff", "38761d", "38761d", "38761d");
-    //rects array (x,y,width,height,color,id)
-    var rects = new Array();
-    rects[0] = new Array(1, 5, 15, 15, "0xDE3249", 1);
-    rects[1] = new Array(100, 150, 250, 250, "0x800080", 2);
-
-    var rects2 = new Array();
-    rects2[0] = new Array(1, 5, 15, 15, "0x800080", 3);
-    rects2[1] = new Array(100, 150, 250, 250, "0xDE3249", 4);
-    //end test data
-    instance.data.startX, instance.data.startY, instance.data.endX, instance.data.endY;
-    const mainContainer = instance.data.mainContainer;
-
-
-
-    //end C Declare
-    ///end local function
-    ////////////// NOTE TO STEVEN: wrapped this for various reasons, maybe we should move some of these like mainContainer to instance everywhere, not sure
+    //run this once to setup some things
     if (instance.data.start) {
 
-        // Select the target element
-
-
-        // Create the IntersectionObserver
+        // Create the IntersectionObserver to watch for when the target element is viewable to the user. This is needed in the future, to destroy the canvas context when the user is not looking at it. Also, to rebuild it when the instance.canvas Bubble element is visible again.
         instance.data.observer = new IntersectionObserver((entries, observer) => {
-            // Check if the target element is intersecting with the viewport
             if (entries[0].isIntersecting) {
                 console.log('Element has come into view');
             }
@@ -212,16 +56,17 @@ ATT
         instance.data.observer.observe(instance.canvas);
 
 
-        //listen for resizes of the element
-
+        //listen for resizes of the element. This is mandatory for the canvas to resize properly. We also handle the scroll position here.
         instance.data.mainElementObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
-                clearTimeout(instance.data.resizeTimer);
-
+                // Check if there is a resize scroll value. If the element has been resized before, there will be a value.
                 if (instance.data.resizeScroll) {
                     var d = new Date();
+                    //check if we've set a date variable to rerun this or not.
                     if ((instance.data.date) && (instance.data.date < d)) {
                         instance.data.date = new Date(d.getTime() + 7000);
+
+                        // Smooth out the resize scroll value by averaging it with the previous scroll position
                         instance.data.resizeScroll = ((instance.data.scrollPositionBefore + (instance.data.resizeScroll * 9)) / 10);
                     }
                     else {
@@ -232,137 +77,108 @@ ATT
                     instance.data.date = d;
                 }
 
-                console.log("instance.data.date", instance.data.date, d);
-                instance.data.resizeTimer = setTimeout(() => {
-                    console.log(`We just resized after timeout`, entry.contentRect);
-                    instance.data.app.resize();
-                    let newPosition = Math.abs(instance.data.resizeScroll) * (instance.data.mainContainer.height - instance.data.app.view.height);
-                    instance.data.mainContainer.position.y = -newPosition;
-                    console.log("resize-instance.data.scrollPositionBefore", instance.data.scrollPositionBefore, instance.data.resizeScroll, `instance.data.mainContainer.height instance.data.app.view.height`, instance.data.mainContainer.height, instance.data.app.view.height, "newPosition", newPosition);
-                    if (instance.data.scrollBar) {
+                // Trigger the pixi app to resize. This is a built-in function. If we don't trigger this when the element resizes, pixis canvas will not resize.
+                instance.data.app.resize();
 
-                    }
-                }, 0);
-                console.log(`We just resized the observer`, entry.contentRect);
+                let newPosition = Math.abs(instance.data.resizeScroll) * (instance.data.mainContainer.height - instance.data.app.view.height);
+                // Set the main container's y position to be negative of the new position because we need it to be positive
+                instance.data.mainContainer.position.y = -newPosition;
+
             }
         });
         instance.data.mainElementObserver.observe(instance.canvas);
 
-
-        instance.data.start = false;
+        //generate the base div for pixi to live in
         instance.canvas.insertAdjacentHTML("beforeend",
             `<div id=${instance.data.randomElementID} class="pixi-container"></div>`);
 
-        imgixBaseURL = "https://d1muf25xaso8hp.cloudfront.net";
-        //https://pixijs.download/release/docs/PIXI.settings.html#ROUND_PIXELS
-        //this setting allows for sharper image quality, but movement is less smooth. We don't have a movement problem
-        PIXI.settings.ROUND_PIXELS = true;
         ele = document.getElementById(instance.data.randomElementID);
-        console.log(ele)
-        //intialize pixi
-        renderer = PIXI.autoDetectRenderer({
-            //width: properties.bubble.width(),
-            //height: properties.bubble.height(),
-            backgroundColor: 0x2980b9,
-        });
-
-
-        instance.data.app.renderer.on(`resize`, function (event) {
-
-
-
-
-        });
-        instance.data.mainContainer = new PIXI.Container();
-        mainContainer.interactive = false;
-        mainContainer.name = "mainContainer";
-        instance.data.mainContainer = mainContainer;
-        canvasElement = mainContainer;
-        instance.data.app.stage.addChild(mainContainer);
-        ele.appendChild(instance.data.app.view);
-        ////////////// NOTE TO STEVEN: added this below as it needed to be defined, apparently
-        ele.setAttribute("pressed", false);
         instance.data.ele = ele;
-    } else {
-        canvasElement = mainContainer;
+        //add the pixi app to the div
+        ele.appendChild(instance.data.app.view);
 
+
+        //start setting up pixi and the main container
+        instance.data.mainContainer = new PIXI.Container();
+        //redundent but allows us to work with the instanced mainContainer variable by using mainContainer
+        instance.data.mainContainer = mainContainer;
+        instance.data.app.stage.addChild(mainContainer);
+
+        instance.data.start = false;
     }
-    if (properties.webpage_screenshot) {
-        //load the webpage and rects with a delay, because Bubble doesn't load the container at the same time this is visible
-        setTimeout(() => {
-            screenshot = PIXI.Texture.fromURL(
-                `${imgixBaseURL}/${properties.webpage_screenshot}?w=${1000}`
-            ).then((texture) => {
-                mainContainer.removeChildren()
 
+    //if we're provided a screenshot, load it or reload it if the width of the canvas has changed because Bubble runs update on resize
+    if (properties.webpage_screenshot) {
+
+        //load the webpage and rects with a delay, because Bubble doesn't load the container at the same time this is visible. This covers the case where the Bubble element changes webpages. We need to wait for the element to become visisble entirely before we can reload the screenshot.
+        setTimeout(() => {
+            instance.data.screenshot = PIXI.Texture.fromURL(
+                `${instance.data.imgixBaseURL}/${properties.webpage_screenshot}?w=${1000}`
+            ).then((texture) => {
+                //remove all shapes drawn before so we can redraw them
+                mainContainer.removeChildren()
                 texture.baseTexture.scaleMode = PIXI.SCALE_MODES.LINEAR;
+
+                //create a sprite from the webpage screenshot
                 instance.data.webpageSprite = PIXI.Sprite.from(texture);
                 webpageSprite = instance.data.webpageSprite;
+
+                //get the initial width and height of the webpage at the current width of the element. This is stored so we can resize locally
                 instance.data.intialWebpageWidth = webpageSprite.width;
-                intialWebpageHeight = webpageSprite.height;
+                instance.data.intialWebpageHeight = webpageSprite.height;
                 webpageSprite.name = "webpage";
-                webpageSprite.intialWidth = webpageSprite.width;
+                webpageSprite.scale.set(instance.data.app.view.width / webpageSprite.width);
+
                 mainContainer.addChild(webpageSprite);
                 mainContainer.interactive = true;
-                webpageSprite.scale.set(instance.data.app.view.width / webpageSprite.width);
-                intialCanvasWidth = instance.data.app.view.width;
-                intialCanvasHeight = instance.data.app.view.height;
-                intialScale = intialCanvasWidth / instance.data.intialWebpageWidth;
-                webpageSprite.intialScale = instance.data.app.view.width / webpageSprite.width;
 
-                //c listeners
+                //add the intial event listeners that are on the main container. These work even after the Bubble element swaps in new content.
                 if (!instance.data.addedMainContainerEventListeners) {
                     mainContainer.on('pointerdown', (e) => {
+                        //makes sure it's left click
                         if (e.data.button === 0) {
-
-                            // Initiate rect creation
-                            if (instance.data.inputMode == instance.data.InputModeEnum.create) {
+                            if (instance.data.proxyVariables.inputMode == instance.data.InputModeEnum.create) {
                                 instance.data.startPosition = new PIXI.Point().copyFrom(e.global)
-                                instance.data.logging ? console.log("pointerdown", instance.data.startPosition) : null;
-                                instance.publishState("currently_selected_drawing", null)
+
+                                //clear the selected rectangle because we clicked on nothing and we're drawing a new rectangle. This also publishes the state of the selected rectangle.
                                 instance.data.proxyVariables.selectedRectangle = null;
-                                instance.data.proxyVariables.rectangleBeingMoved = null;
-
-
                             }
+
                             if (instance.data.inputMode == instance.data.InputModeEnum.select) {
-                                //PLACEHOLDER for select function
                                 instance.data.selectRect(e.target);
                             }
                         }
                     });
-                    mainContainer.addEventListener('pointerupoutside', (e) => {
 
-                        console.log("pointerupoutside", e)
-                    }, { passive: true });
-                    mainContainer.on('pointermove', (e) => {
+                    mainContainer.addEventListener('pointermove', (e) => {
 
+                        //if we're in create mode, make sure the cursor is updated, because it doesn't seem to update until the mouse has moved
                         if (instance.data.proxyVariables.inputMode == instance.data.InputModeEnum.create && mainContainer.cursor !== "crosshair") {
                             mainContainer.cursor = "crosshair";
                         }
 
-
-
-
-
                         // Do this routine only if in create mode and have started creation
                         // this event triggers all the time but we stop it by not providing start postition when cursor not pressed
                         if (instance.data.inputMode == instance.data.InputModeEnum.create && instance.data.startPosition && instance.data.proxyVariables.rectangleBeingMoved == null && instance.data.proxyVariables.rectangleBeingResized == null) {
-
+                            // disable all other interactions on the main container so we don't lose control moving over another rectangle. Maybe don't need to run this every time?
                             instance.data.mainContainer.children.forEach(child => {
                                 if (child.name !== "webpage") {
-                                    child.interactive = false;
+                                    if (child.interactive) {
+                                        child.interactive = false;
+                                    }
                                 }
                             })
+
                             // get new global position from event
                             let currentPosition = e.global;
                             let {
                                 start,
                                 size
                             } = instance.data.getStartAndSize(currentPosition, instance.data.startPosition, "draw")
+
+                            // if the size is greater than 5x5, draw the rectangle
                             if (size.x > 5 && size.y > 5) {
                                 if (!instance.data.currentRectangle) {
-                                    console.log(`creating new rect`)
                                     instance.data.currentRectangle = new PIXI.Graphics().beginFill("0x" + instance.data.highlightColor, instance.data.highlightColorAlpha)
                                         .lineStyle({
                                             color: "0x" + instance.data.highlightColor,
@@ -378,7 +194,8 @@ ATT
                                     instance.data.addLabel(instance.data.currentRectangle);
                                     mainContainer.addChild(instance.data.currentRectangle)
                                 } else {
-                                    instance.data.scaleRectB(instance.data.currentRectangle, currentPosition)
+                                    //if we already have a rectangle, scale it instead of creating it
+                                    instance.data.resizeNewRectangle(instance.data.currentRectangle, currentPosition)
                                 }
                             } else {
                                 if (instance.data.currentRectangle) {
@@ -435,8 +252,8 @@ ATT
                             console.log(`rectCreated-resize graphic`, resizingRectangle.width, resizingRectangle.height);
 
                         }
-                    });
-                    mainContainer.on('pointerup', (e) => {
+                    }, { passive: true });
+                    mainContainer.addEventListener('pointerup', (e) => {
                         console.log(`main container pointer up`)
 
                         // Wrap up rect creation
@@ -447,7 +264,7 @@ ATT
                                 // Mouse & touch events are normalized into
                                 // the pointer* events for handling different
                                 // Rectangle events.
-                                .on('pointerover', instance.data.onRectangleOver).on('pointerout', instance.data.onRectangleOut);
+                                .on('pointerover', instance.data.onRectangleOver)
 
                             instance.data.currentRectangle.initialScale = instance.data.app.view.width / instance.data.intialWebpageWidth;
 
@@ -537,9 +354,6 @@ ATT
                             bodyContent.append("initial_drawn_scale", drawnScale)
                             bodyContent.append("drawn_label_snippet", instance.data.rectangleBeingMoved.id);
 
-
-
-
                             fetch(`https://app.syllabus.io/${instance.data.dynamicFetchParam}api/1.1/wf/update-drawn-label`, {
                                 method: "POST",
                                 body: bodyContent,
@@ -557,19 +371,15 @@ ATT
                             instance.data.rectangleBeingMoved = null;
                         }
                         instance.data.proxyVariables.rectangleBeingMoved = null;
-                        instance.data.movingRectangle = null;
                         instance.data.rectangleBeingResized = null;
                         instance.data.proxyVariables.rectangleBeingResized = null;
 
 
-                        instance.data.onDragEndNew()
-                    });
-                    //load our data
-                    mainContainer.on('pointerupoutside', instance.data.onDragEndNew);
+                    }, { passive: true });
+
                     mainContainer.addEventListener("pointermove", e => {
 
-
-
+                        //set the input mode to create if we're not in create mode and the container is moved over. This should probably be moved into the other pointermove event listener
                         if (instance.data.proxyVariables.inputMode !== instance.data.InputModeEnum.create && !instance.data.proxyVariables.rectangleBeingMoved) {
                             console.log(`we're not in create mode`)
                             instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.create
@@ -579,23 +389,19 @@ ATT
                         }
                     }, { passive: true })
 
-                    mainContainer.interactive = true;
-                    mainContainer.hitArea = mainContainer.screen;
                     instance.data.addedMainContainerEventListeners = true;
                 }
+                //this officially loads the drawn attribute snippet. It's a ternary because we wanted to toggle it on/off for testing
                 instance.data.loadData ? instance.data.loadDAS(instance.data.dasOrigin) : null;
+
+
+                //destroy and recreate the scroll bar if it exists. Just create it normally otherwise. Create the necessary event listeners
                 if (instance.data.scrollBar) {
                     instance.data.scrollBar.destroy();
                 }
                 instance.data.scrollBar = instance.data.createScrollBar(instance.data.mainContainer, instance.data.app, instance.data.ele);
-                instance.data.createdScrollBar = true;
                 instance.data.ele.addEventListener("wheel", instance.data.scrollCanvas, { passive: true })
                 window.addEventListener("pointermove", instance.data.scrollBarWindowPointerMove, { passive: true })
-
-                setTimeout(() => {
-                    instance.data.app.resize();
-                }, 100)
-
             });
         }, 200)
     }
