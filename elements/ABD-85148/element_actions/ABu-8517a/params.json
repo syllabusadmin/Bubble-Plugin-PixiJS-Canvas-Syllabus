@@ -1,0 +1,22 @@
+{
+    "caption": "scrollTo",
+    "fields": {
+        "ABv": {
+            "caption": "Drawn Attribute Snippet ID",
+            "doc": "Unique ID of the Snippet",
+            "editor": "DynamicValue",
+            "name": "das",
+            "rank": 0,
+            "value": "text"
+        },
+        "ABw": {
+            "caption": "Y Padding",
+            "default_val": 0,
+            "doc": "Adds some pad so it's not at the absolute top",
+            "editor": "DynamicValue",
+            "name": "ypadding",
+            "rank": 1,
+            "value": "number"
+        }
+    }
+}

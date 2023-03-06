@@ -44,6 +44,8 @@ function(instance, context) {
     instance.data.startPosition = null;
     // Current edited or created rectangle
     instance.data.currentRectangle = null;
+    //added for action based options with rectangles (scrollTo)
+    instance.data.rectangles = [];
 
 
     //input modes for handling the current mode the user is in
@@ -439,6 +441,7 @@ function(instance, context) {
         );
         instance.data.mainContainer.addChild(rectCreated);
         instance.data.addLabel(rectCreated);
+        instance.data.rectangles.push(rectCreated);
         rectCreated.interactive = true;
 
         //add event listeners to the rectangle
