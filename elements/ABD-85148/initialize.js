@@ -406,6 +406,7 @@ function(instance, context) {
         true ? console.log("label", label, rect, rect.getBounds()) : null;
         rect.addChild(label);
         label.position.set(10, 10);
+        return label;
     };
 
     //creates a rectangle with a border, or a highlighted rectangle, if that is the label to be highlighted. This is the function that essentially created every rectangle
@@ -440,7 +441,7 @@ function(instance, context) {
             new PIXI.Point(createCoord.startRectX, createCoord.startRectY)
         );
         instance.data.mainContainer.addChild(rectCreated);
-        instance.data.addLabel(rectCreated);
+        let labelText = instance.data.addLabel(rectCreated);
         instance.data.rectangles.push(rectCreated);
         rectCreated.interactive = true;
 
@@ -484,7 +485,6 @@ function(instance, context) {
             }
         }, { passive: true });
         rectCreated.addEventListener("pointerdown", e => {
-            e.stopPropagation();
             if (e.data.button === 0) {
                 const x = e.global.x - instance.data.mainContainer.x;
                 const y = e.global.y - instance.data.mainContainer.y;
@@ -615,6 +615,13 @@ function(instance, context) {
             instance.data.proxyVariables.rectangleBeingResized = null;
         }, { passive: true });
 
+        labelText.interactive = true;
+        labelText.addEventListener("pointerdown", e => {
+            alert("label text clicked");
+        }, { passive: true });
+
+
+
     };
 
     //not 100% sure this is useful anymore. possibly remove
@@ -693,6 +700,26 @@ function(instance, context) {
         height,
         color
     ) {
+
+        // create a polygon that will be used as the hit area for the rectangle this just draws a shape around the borders of the rectangle
+        // 
+        let invisibleHitArea = new PIXI.Polygon([
+            //draws the outer rect
+            new PIXI.Point(x - 5, y - 5), // top left corner of outer rectangle
+            new PIXI.Point(x + width + 5, y - 5), // top right corner of outer rectangle
+            new PIXI.Point(x + width + 5, y + height + 5), // bottom right corner of outer rectangle
+            new PIXI.Point(x - 5, y + height + 5), // bottom left corner of outer rectangle
+            new PIXI.Point(x - 5, y - 5), // top left corner of outer rectangle
+
+
+            //starts drawing inner
+            new PIXI.Point(x + 10, y + 10), // top left corner of outer rectangle
+            new PIXI.Point(x + 10, y + height - 10), // bottom left corner of inner rectangle
+            new PIXI.Point(x + width - 10, y + height - 10), // bottom right corner of inner rectangle
+            new PIXI.Point(x + width - 10, y + 10), // top right corner of inner rectangle
+            new PIXI.Point(x + 10, y + 10),
+
+        ]);
         let rectangle = new PIXI.Graphics()
             .beginFill("0x" + color, instance.data.normalColorAlpha)
             .drawRect(x, y, width, height)
@@ -700,6 +727,9 @@ function(instance, context) {
             .beginHole()
             .drawRect(5, 5, width - 10, height - 10)
             .endHole();
+
+        rectangle.hitArea = invisibleHitArea;
+
         return rectangle;
     };
 
