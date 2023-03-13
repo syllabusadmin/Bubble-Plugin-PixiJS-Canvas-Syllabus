@@ -69,8 +69,8 @@ function(instance, context) {
     }, {
         set: function (obj, prop, value) {
             let previousValue = obj[prop];
-            console.log(`proxy previous value:`, prop, previousValue);
-            console.log(`proxy current value `, prop, value);
+            (`proxy previous value:`, prop, previousValue);
+            ;
 
             //check if the property is the selected rectangle
             if (prop === `selectedRectangle`) {
@@ -162,7 +162,7 @@ function(instance, context) {
                 //check the current input mode
                 for (let property in instance.data.InputModeEnum) {
                     if (instance.data.InputModeEnum[property] == value) {
-                        console.log(`inputMode changed to ${property} `)
+
                     }
                 }
                 if (value == instance.data.InputModeEnum.create) {
@@ -177,7 +177,7 @@ function(instance, context) {
                     instance.data.mainContainer.cursor = "nwse-resize"
                 }
                 if (value == instance.data.InputModeEnum.move) {
-                    console.log(`inputMode: move mode`)
+
                     instance.data.mainContainer.cursor = "move"
                 }
 
@@ -186,14 +186,14 @@ function(instance, context) {
             }
             if (prop == "rectangleBeingResized") {
                 if (value) {
-                    console.log(`rectangleBeingResized:`, value)
+
                 }
                 else {
                 }
             }
             if (prop == "rectangleBeingMoved") {
                 if (value) {
-                    console.log(`rectangleBeingMoved:`, value)
+
                 }
                 else {
                 }
@@ -218,7 +218,7 @@ function(instance, context) {
     //creates the pixi scrollbar graphic
     instance.data.createScrollBar = function (mainContainer, pixiApp, div) {
         const scrollPercent = -instance.data.mainContainer.position.y / instance.data.maxScroll;
-        console.log(`scrollPercent,createscrollbar: ${scrollPercent}`);
+        ;
         const scrollbarHeight = instance.data.app.view.height * (instance.data.app.view.height / instance.data
             .mainContainer.height);
         const scrollbarY = scrollPercent * (instance.data.app.view.height - scrollbarHeight);
@@ -246,15 +246,15 @@ function(instance, context) {
             }
         });
         scrollbar.addEventListener("pointerup", (e) => {
-            console.log(`scrollbar pointerup`);
+            ;
             div.pressed = false;
-            console.log(div.pressed);
+            ;
             scrollbar.tint = 0xffffff;
         });
         scrollbar.addEventListener("pointerupoutside", (e) => {
-            console.log(`scrollbar pointerupoutside`);
+            ;
             div.pressed = false;
-            console.log(div.pressed);
+            ;
             scrollbar.tint = 0xffffff;
         });
         pixiApp.stage.addChild(scrollbar);
@@ -270,7 +270,7 @@ function(instance, context) {
     instance.data.scrollCanvas = function (event) {
         document.body.style.overflowY = "hidden";
         let maxScroll = instance.data.mainContainer.height - instance.data.app.view.height;
-        console.log(`the scrollbar during creation is`, instance.data.scrollBar)
+
 
 
 
@@ -305,7 +305,7 @@ function(instance, context) {
         instance.data.scrollBar.endFill();
         clearTimeout(instance.data.scrollingTimeout);
         instance.data.scrollingTimeout = setTimeout(() => {
-            console.log("Show the content again because the user stopped scrolling");
+            ;
             document.body.style.overflow = "auto";
         }, 1000);
         instance.publishState("scroll_depth", instance.data.mainContainer.position.y)
@@ -316,7 +316,7 @@ function(instance, context) {
         if (instance.data.ele.pressed) {
             const scrollPercent = -instance.data.mainContainer.position.y / instance.data.maxScroll;
             instance.data.scrollPositionBefore = scrollPercent;
-            console.log(`scrollPercent: ${scrollPercent}`);
+            ;
 
             const scrollbarHeight =
                 instance.data.app.view.height * (instance.data.app.view.height / instance.data.mainContainer.height);
@@ -324,7 +324,7 @@ function(instance, context) {
                 scrollPercent * (instance.data.app.view.height - scrollbarHeight);
 
             const mouseDif = event.y - instance.data.scrollBarLastY;
-            console.log(mouseDif);
+            ;
 
             const newTop = mouseDif + instance.data.scrollBarLastTop;
             const scrollPercent2 = newTop / (instance.data.app.view.height - scrollbarHeight);
@@ -359,9 +359,9 @@ function(instance, context) {
             //this is the unique ID of the Attribute
             let dasLabelID = das.attributeId;
 
-            console.log(`creating a new rect`)
-            console.log(`the new drawn label unique ID is:`, dasLabelID);
-            console.log(`the new Drawn Snippet Unique ID is:`, dasID);
+
+            ;
+            ;
 
 
 
@@ -403,9 +403,53 @@ function(instance, context) {
             wordWrapWidth: rect.width,
             breakWords: true,
         });
-        true ? console.log("label", label, rect, rect.getBounds()) : null;
         rect.addChild(label);
         label.position.set(10, 10);
+
+        let { width, height } = rect;
+        let x = 0, y = 0;
+
+
+        let labelX = 10;
+        let labelY = 10;
+        let labelWidth = label.width;
+        let labelHeight = label.height;
+
+
+        // if the recntangle is not highlighted, create the custom hit area that wraps around the rectangle and the label, else default to the visible area defined by pixis internals
+        if (!rect.isHighlighted) {
+            invisibleHitArea = new PIXI.Polygon([
+                //starts wrapping around the outer rectangle
+                new PIXI.Point(x - 5, y - 5), // top left corner of outer rectangle
+                new PIXI.Point(x + width + 5, y - 5), // top right corner of outer rectangle
+                new PIXI.Point(x + width + 5, y + height + 5), // bottom right corner of outer rectangle
+                new PIXI.Point(x - 5, y + height + 5), // bottom left corner of outer rectangle
+                new PIXI.Point(x - 5, y - 5), // top left corner of outer rectangle
+
+                // //starts wrapping around the label
+                new PIXI.Point(labelX, labelY), // top left corner of label
+                new PIXI.Point(labelX + labelWidth, labelY), // top right corner of label
+                new PIXI.Point(labelX + labelWidth, labelY + labelHeight), // bottom right corner of label
+                new PIXI.Point(x + 10, labelY + labelHeight), // bottom of label, 5px inside of outer rectangle
+
+                // //starts wrapping around the inner rectangle
+                new PIXI.Point(x + 10, y + height - 10), // bottom left corner of inner rectangle
+                new PIXI.Point(x + width - 10, y + height - 10), // bottom right corner of inner rectangle
+                new PIXI.Point(x + width - 10, y + 10), // top right corner of inner rectangle
+                new PIXI.Point(x + 10, y + 10), //top left of inner
+            ])
+
+            // create the graphics object for the hit area. this is not necessary, but it is helpful for debugging
+            const hitAreaGraphics = new PIXI.Graphics();
+            hitAreaGraphics.beginFill(0xFF0000, 0.0);
+            hitAreaGraphics.drawPolygon(invisibleHitArea);
+            hitAreaGraphics.endFill();
+
+            // add the hit area to the rectangle
+            rect.addChild(hitAreaGraphics);
+
+            rect.hitArea = invisibleHitArea;
+        }
         return label;
     };
 
@@ -448,7 +492,7 @@ function(instance, context) {
         //add event listeners to the rectangle
         rectCreated.addEventListener("pointermove", event => {
 
-            console.log(`we just hovered over a rectangle`, rectCreated)
+
             const x = event.global.x - instance.data.mainContainer.x;
             const y = event.global.y - instance.data.mainContainer.y;
             let rectScaledWidth = rectCreated.width
@@ -485,6 +529,7 @@ function(instance, context) {
             }
         }, { passive: true });
         rectCreated.addEventListener("pointerdown", e => {
+            e.stopPropagation();
             if (e.data.button === 0) {
                 const x = e.global.x - instance.data.mainContainer.x;
                 const y = e.global.y - instance.data.mainContainer.y;
@@ -496,7 +541,7 @@ function(instance, context) {
                     x >= rectScaledX + rectScaledWidth - 20 &&
                     y >= rectScaledY + rectScaledHeight - 20;
 
-                console.log(`we just clicked on a rectangle`, rectCreated)
+
                 if (!rectCreated.isSelected) {
                     instance.data.proxyVariables.selectedRectangle = rectCreated;
                     instance.data.selectedRectangle = rectCreated;
@@ -506,7 +551,7 @@ function(instance, context) {
 
                 //trigger the move start if the rectangle is highlighted
                 if (rectCreated.isHighlighted && !isInBottomRightCorner) {
-                    console.log(`the rect is highlighted`)
+
                     if (instance.data.proxyVariables.inputMode !== instance.data.InputModeEnum.move) {
                         instance.data.inputMode = instance.data.InputModeEnum.move;
                         instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.move;
@@ -529,7 +574,7 @@ function(instance, context) {
                     rectCreated.originalMovePositionX = rectCreated.position.x;
                     rectCreated.originalMovePositionY = rectCreated.position.y;
                     rectCreated.isMoving = true;
-                    console.log(`rectCreated-move`, rectCreated)
+
                 }
 
 
@@ -565,10 +610,10 @@ function(instance, context) {
 
                     rectCreated.isResizing = true;
                     instance.data.proxyVariables.rectangleBeingResized = rectCreated;
-                    console.log(`rectCreated-resize`, rectCreated)
-                    console.log(`rectCreated-resize mouseX and Y`, rectCreated.startMouseX, rectCreated.startMouseY)
-                    console.log(`rectCreated-resize relativeMouseX and Y`, rectCreated.relativeMouseX, rectCreated.relativeMouseY)
-                    console.log(`rectCreated-resize originalResizeWidth and Height`, rectCreated.originalResizeWidth, rectCreated.originalResizeHeight)
+
+
+
+
 
                 }
             }
@@ -579,8 +624,8 @@ function(instance, context) {
 
             if (instance.data.proxyVariables.rectangleBeingMoved) {
 
-                console.log(`the rectangle being moved is`, instance.data.proxyVariables.rectangleBeingMoved)
-                console.log(`the original position is`, instance.data.proxyVariables.rectangleBeingMoved.originalMovePositionY, instance.data.proxyVariables.rectangleBeingMoved.originalMovePositionX)
+
+
                 // Store the rectangle being moved in a variable
                 let rectbeingMoved = instance.data.proxyVariables.rectangleBeingMoved;
                 // Store the rect's current x and y position in variables
@@ -592,7 +637,7 @@ function(instance, context) {
                 //check if the rectangle has moved
                 if (rectbeingMoved.originalMovePositionX != rectX || rectbeingMoved.originalMovePositionY != rectY) {
                     let borderWidth = rectbeingMoved.lineWidth;
-                    console.log(`the border width is`, borderWidth)
+
 
                     //if it has, update the rectangle's position in the database
                     instance.data.updateDrawnLabel(instance.data.proxyVariables.rectangleBeingMoved.x, instance.data.proxyVariables.rectangleBeingMoved.y, instance.data.proxyVariables.rectangleBeingMoved.width, instance.data.proxyVariables.rectangleBeingMoved.height, drawnScale, instance.data.proxyVariables.rectangleBeingMoved.id)
@@ -606,18 +651,13 @@ function(instance, context) {
             }
 
             if (instance.data.proxyVariables.rectangleBeingResized) {
-                console.log(`the rectangle being resized is`, instance.data.proxyVariables.rectangleBeingResized)
+
 
                 instance.data.updateDrawnLabel(instance.data.proxyVariables.rectangleBeingResized.x, instance.data.proxyVariables.rectangleBeingResized.y, instance.data.proxyVariables.rectangleBeingResized.width, instance.data.proxyVariables.rectangleBeingResized.height, drawnScale, instance.data.proxyVariables.rectangleBeingResized.id)
             }
             instance.data.proxyVariables.rectangleBeingMoved = null;
             instance.data.rectangleBeingResized = null;
             instance.data.proxyVariables.rectangleBeingResized = null;
-        }, { passive: true });
-
-        labelText.interactive = true;
-        labelText.addEventListener("pointerdown", e => {
-            alert("label text clicked");
         }, { passive: true });
 
 
@@ -703,23 +743,7 @@ function(instance, context) {
 
         // create a polygon that will be used as the hit area for the rectangle this just draws a shape around the borders of the rectangle
         // 
-        let invisibleHitArea = new PIXI.Polygon([
-            //draws the outer rect
-            new PIXI.Point(x - 5, y - 5), // top left corner of outer rectangle
-            new PIXI.Point(x + width + 5, y - 5), // top right corner of outer rectangle
-            new PIXI.Point(x + width + 5, y + height + 5), // bottom right corner of outer rectangle
-            new PIXI.Point(x - 5, y + height + 5), // bottom left corner of outer rectangle
-            new PIXI.Point(x - 5, y - 5), // top left corner of outer rectangle
 
-
-            //starts drawing inner
-            new PIXI.Point(x + 10, y + 10), // top left corner of outer rectangle
-            new PIXI.Point(x + 10, y + height - 10), // bottom left corner of inner rectangle
-            new PIXI.Point(x + width - 10, y + height - 10), // bottom right corner of inner rectangle
-            new PIXI.Point(x + width - 10, y + 10), // top right corner of inner rectangle
-            new PIXI.Point(x + 10, y + 10),
-
-        ]);
         let rectangle = new PIXI.Graphics()
             .beginFill("0x" + color, instance.data.normalColorAlpha)
             .drawRect(x, y, width, height)
@@ -727,8 +751,6 @@ function(instance, context) {
             .beginHole()
             .drawRect(5, 5, width - 10, height - 10)
             .endHole();
-
-        rectangle.hitArea = invisibleHitArea;
 
         return rectangle;
     };
@@ -774,7 +796,7 @@ function(instance, context) {
                 return result
             })
             .catch(error => {
-                console.log(error);
+                ;
                 throw error
             }
             );
