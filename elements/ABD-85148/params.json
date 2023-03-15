@@ -175,6 +175,15 @@
             "optional": true,
             "rank": 8,
             "value": "custom_data_ABF"
+        },
+        "ABy": {
+            "caption": "Display Label text?",
+            "default_val": true,
+            "doc": "Toggles the visibility of text being rendered on labels",
+            "editor": "DynamicValue",
+            "name": "display_label_text",
+            "rank": 17,
+            "value": "boolean"
         }
     },
     "icon": "ion-android-checkbox-blank",
