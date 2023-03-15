@@ -40,6 +40,7 @@ function(instance, context) {
     instance.data.dragColor = "DE3249"; //red default
     instance.data.highlightColor = "FFFF00"; //yellow
     instance.data.resizeColor = "FFFF00"; //"0000FF"; //blue
+    instance.data.displayLabelText;
     // Start position of events
     instance.data.startPosition = null;
     // Current edited or created rectangle
@@ -485,7 +486,9 @@ function(instance, context) {
             new PIXI.Point(createCoord.startRectX, createCoord.startRectY)
         );
         instance.data.mainContainer.addChild(rectCreated);
-        let labelText = instance.data.addLabel(rectCreated);
+        if (instance.data.displayLabelText) {
+            let labelText = instance.data.addLabel(rectCreated);
+        }
         instance.data.rectangles.push(rectCreated);
         rectCreated.interactive = true;
 

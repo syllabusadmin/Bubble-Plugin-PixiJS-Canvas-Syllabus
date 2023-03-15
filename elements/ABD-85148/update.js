@@ -3,6 +3,7 @@ function(instance, properties, context) {
     // Get the account web page ID and label to highlight from properties
     instance.data.accountWebPageID = properties.account_webpage?.get(`_id`);
     instance.data.proxyVariables.labelToHighlight = properties.label_to_highlight?.get(`_id`);
+    instance.data.displayLabelText = properties.display_label_text;
 
     // Local variable for the PIXI main container that makes it easier to type
     const mainContainer = instance.data.mainContainer;
