@@ -394,12 +394,14 @@ function(instance, context) {
         const label = new PIXI.Text(rect.name, {
             fontFamily: instance.data.labelFont,
             fontSize: instance.data.labelFontSize,
-            stroke: "0x" + instance.data.labelFontColor,
-            strokeThickness: 1,
+            fill: "0x" + instance.data.labelFontColor,
+            stroke: 0xffffff, // White border
+            strokeThickness: 4, // Thickness of the border
             dropShadow: true,
-            dropShadowColor: 0xffffff,
-            dropShadowDistance: 0,
-            dropShadowBlur: 2,
+            dropShadowColor: 0x000000, // Black drop shadow
+            dropShadowAlpha: 0.8, // Adjust opacity as needed (0 transparent, 1 opaque)
+            dropShadowDistance: 2, // Adjust the distance of the shadow from the text
+            dropShadowBlur: 2, // Increase the blur for a more dispersed shadow
             wordWrap: true,
             wordWrapWidth: rect.width,
             breakWords: true,
