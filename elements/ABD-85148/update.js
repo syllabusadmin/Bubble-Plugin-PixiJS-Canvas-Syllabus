@@ -4,6 +4,8 @@ function(instance, properties, context) {
     instance.data.accountWebPageID = properties.account_webpage?.get(`_id`);
     instance.data.proxyVariables.labelToHighlight = properties.label_to_highlight?.get(`_id`);
     instance.data.displayLabelText = properties.display_label_text;
+    //add read only property
+    instance.data.readOnly = properties.readonly;
 
     // Local variable for the PIXI main container that makes it easier to type
     const mainContainer = instance.data.mainContainer;
@@ -134,7 +136,7 @@ function(instance, properties, context) {
                 mainContainer.interactive = true;
 
                 //add the intial event listeners that are on the main container. These work even after the Bubble element swaps in new content.
-                if (!instance.data.addedMainContainerEventListeners) {
+                if (!instance.data.addedMainContainerEventListeners && !instance.data.readOnly) {
                     mainContainer.on('pointerdown', (e) => {
                         //makes sure it's left click
                         if (e.data.button === 0) {

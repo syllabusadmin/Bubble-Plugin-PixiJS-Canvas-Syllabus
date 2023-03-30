@@ -184,6 +184,14 @@
             "name": "display_label_text",
             "rank": 17,
             "value": "boolean"
+        },
+        "ABz": {
+            "caption": "readOnly",
+            "default_val": false,
+            "editor": "DynamicValue",
+            "name": "readonly",
+            "rank": 18,
+            "value": "boolean"
         }
     },
     "icon": "ion-android-checkbox-blank",

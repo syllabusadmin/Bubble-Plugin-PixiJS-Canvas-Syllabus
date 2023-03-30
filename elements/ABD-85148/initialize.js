@@ -47,6 +47,7 @@ function(instance, context) {
     instance.data.currentRectangle = null;
     //added for action based options with rectangles (scrollTo)
     instance.data.rectangles = [];
+    instance.data.readOnly = true;
 
 
     //input modes for handling the current mode the user is in
@@ -75,6 +76,7 @@ function(instance, context) {
 
             //check if the property is the selected rectangle
             if (prop === `selectedRectangle`) {
+                console.log('CSP rect prop selected',value,prop);
                 //check if the value is not null and the value is not the same as the previous value
                 if (value && value !== previousValue) {
                     //loop through all of the containers on the main container (the squares)
@@ -508,7 +510,7 @@ function(instance, context) {
                 x >= rectScaledX + rectScaledWidth - 20 &&
                 y >= rectScaledY + rectScaledHeight - 20;
 
-            if (!rectCreated.isHighlighted && !instance.data.proxyVariables.rectangleBeingResized && !instance.data.proxyVariables.rectangleBeingMoved) {
+            if (!rectCreated.isHighlighted && !instance.data.proxyVariables.rectangleBeingResized && !instance.data.proxyVariables.rectangleBeingMoved && !instance.data.readOnly) {
                 if (instance.data.proxyVariables.inputMode != instance.data.InputModeEnum.select) {
                     instance.data.inputMode = instance.data.InputModeEnum.select;
                     instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.select;
@@ -516,14 +518,14 @@ function(instance, context) {
                 }
             }
 
-            if (rectCreated.isHighlighted && !isInBottomRightCorner) {
+            if (rectCreated.isHighlighted && !isInBottomRightCorner && !instance.data.readOnly) {
                 if (instance.data.proxyVariables.inputMode != instance.data.InputModeEnum.move) {
                     instance.data.inputMode = instance.data.InputModeEnum.move;
                     instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.move;
                     rectCreated.cursor = "move";
                 }
             }
-            if (rectCreated.isHighlighted && isInBottomRightCorner) {
+            if (rectCreated.isHighlighted && isInBottomRightCorner && !instance.data.readOnly) {
                 if (instance.data.proxyVariables.inputMode != instance.data.InputModeEnum.scale) {
                     instance.data.inputMode = instance.data.InputModeEnum.scale;
                     instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.scale;
@@ -535,6 +537,7 @@ function(instance, context) {
         }, { passive: true });
         rectCreated.addEventListener("pointerdown", e => {
             e.stopPropagation();
+            console.log('rect pointerdown',rectCreated,!rectCreated.isSelected,e.data.button);
             if (e.data.button === 0) {
                 const x = e.global.x - instance.data.mainContainer.x;
                 const y = e.global.y - instance.data.mainContainer.y;
@@ -546,16 +549,17 @@ function(instance, context) {
                     x >= rectScaledX + rectScaledWidth - 20 &&
                     y >= rectScaledY + rectScaledHeight - 20;
 
-
+console.log('rect selected CSP',!rectCreated.isSelected);
                 if (!rectCreated.isSelected) {
                     instance.data.proxyVariables.selectedRectangle = rectCreated;
                     instance.data.selectedRectangle = rectCreated;
+                    console.log('rect selected insde',instance.data.selectedRectangle);
                 }
 
 
 
                 //trigger the move start if the rectangle is highlighted
-                if (rectCreated.isHighlighted && !isInBottomRightCorner) {
+                if (rectCreated.isHighlighted && !isInBottomRightCorner && !instance.data.readOnly) {
 
                     if (instance.data.proxyVariables.inputMode !== instance.data.InputModeEnum.move) {
                         instance.data.inputMode = instance.data.InputModeEnum.move;
@@ -584,7 +588,7 @@ function(instance, context) {
 
 
                 //trigger the resize start if the rectangle is highlighted and in the bottom right corner
-                if (rectCreated.isHighlighted && isInBottomRightCorner) {
+                if (rectCreated.isHighlighted && isInBottomRightCorner && !instance.data.readOnly) {
                     startPosition = e.target.position;
 
 
@@ -627,7 +631,7 @@ function(instance, context) {
             e.stopPropagation();
             let drawnScale = instance.data.app.view.width / instance.data.intialWebpageWidth;
 
-            if (instance.data.proxyVariables.rectangleBeingMoved) {
+            if (instance.data.proxyVariables.rectangleBeingMoved && !instance.data.readOnly) {
 
 
 
@@ -655,7 +659,7 @@ function(instance, context) {
                 instance.data.proxyVariables.rectangleBeingMoved = null;
             }
 
-            if (instance.data.proxyVariables.rectangleBeingResized) {
+            if (instance.data.proxyVariables.rectangleBeingResized && !instance.data.readOnly) {
 
 
                 instance.data.updateDrawnLabel(instance.data.proxyVariables.rectangleBeingResized.x, instance.data.proxyVariables.rectangleBeingResized.y, instance.data.proxyVariables.rectangleBeingResized.width, instance.data.proxyVariables.rectangleBeingResized.height, drawnScale, instance.data.proxyVariables.rectangleBeingResized.id)
