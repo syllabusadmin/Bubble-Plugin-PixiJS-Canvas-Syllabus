@@ -17,6 +17,14 @@
             "name": "ypadding",
             "rank": 1,
             "value": "number"
+        },
+        "ACA": {
+            "caption": "logging",
+            "default_val": true,
+            "editor": "DynamicValue",
+            "name": "logging",
+            "rank": 2,
+            "value": "boolean"
         }
     }
 }
