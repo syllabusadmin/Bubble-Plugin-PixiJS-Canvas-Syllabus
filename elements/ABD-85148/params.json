@@ -1,13 +1,13 @@
 {
     "add_is_visible": true,
-    "can_fit_height": true,
+    "can_fit_height": false,
     "can_fit_width": true,
     "category": "visual elements",
     "default_dim": {
         "height": 200,
         "width": 400
     },
-    "display": "PixiJS Canvas - test",
+    "display": "PixiJS Canvas",
     "events": {
         "ABH": {
             "caption": "Label selected",
@@ -192,6 +192,14 @@
             "name": "readonly",
             "rank": 18,
             "value": "boolean"
+        },
+        "ACK": {
+            "caption": "reset",
+            "default_val": 0,
+            "editor": "DynamicValue",
+            "name": "reset",
+            "rank": 19,
+            "value": "number"
         }
     },
     "icon": "ion-android-checkbox-blank",
@@ -236,6 +244,30 @@
             },
             "name": "scroll_depth",
             "value": "number"
+        },
+        "ACC": {
+            "caption": "ready",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "ready",
+            "value": "boolean"
+        },
+        "ACL": {
+            "caption": "reset",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "reset",
+            "value": "number"
+        },
+        "ACM": {
+            "caption": "visible",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "visible",
+            "value": "boolean"
         }
     }
 }

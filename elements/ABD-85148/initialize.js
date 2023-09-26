@@ -34,6 +34,7 @@ function(instance, context) {
         backgroundAlpha: 0,
     });
     PIXI.settings.ROUND_PIXELS = true;
+
     instance.data.mainContainer = new PIXI.Container();
     instance.data.mainContainer.name = "mainContainer";
     instance.data.app.stage.addChild(instance.data.mainContainer);
@@ -48,6 +49,8 @@ function(instance, context) {
     //added for action based options with rectangles (scrollTo)
     instance.data.rectangles = [];
     instance.data.readOnly = true;
+    //adds ready state
+    instance.publishState(`ready`, false)
 
 
     //input modes for handling the current mode the user is in
@@ -76,7 +79,7 @@ function(instance, context) {
 
             //check if the property is the selected rectangle
             if (prop === `selectedRectangle`) {
-                console.log('CSP rect prop selected',value,prop);
+                console.log('CSP rect prop selected', value, prop);
                 //check if the value is not null and the value is not the same as the previous value
                 if (value && value !== previousValue) {
                     //loop through all of the containers on the main container (the squares)
@@ -537,7 +540,7 @@ function(instance, context) {
         }, { passive: true });
         rectCreated.addEventListener("pointerdown", e => {
             e.stopPropagation();
-            console.log('rect pointerdown',rectCreated,!rectCreated.isSelected,e.data.button);
+            console.log('rect pointerdown', rectCreated, !rectCreated.isSelected, e.data.button);
             if (e.data.button === 0) {
                 const x = e.global.x - instance.data.mainContainer.x;
                 const y = e.global.y - instance.data.mainContainer.y;
@@ -549,11 +552,11 @@ function(instance, context) {
                     x >= rectScaledX + rectScaledWidth - 20 &&
                     y >= rectScaledY + rectScaledHeight - 20;
 
-console.log('rect selected CSP',!rectCreated.isSelected);
+                console.log('rect selected CSP', !rectCreated.isSelected);
                 if (!rectCreated.isSelected) {
                     instance.data.proxyVariables.selectedRectangle = rectCreated;
                     instance.data.selectedRectangle = rectCreated;
-                    console.log('rect selected insde',instance.data.selectedRectangle);
+                    console.log('rect selected insde', instance.data.selectedRectangle);
                 }
 
 
@@ -810,4 +813,68 @@ console.log('rect selected CSP',!rectCreated.isSelected);
             }
             );
     }
+    
+    instance.data.visibleObserver = new IntersectionObserver(async (entries, observer) => {
+      try {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            console.log('creating');
+            instance.data.app = new PIXI.Application({
+              resizeTo: instance.canvas,
+              backgroundColor: 0x000000,
+              backgroundAlpha: 0,
+            });
+            instance.data.start = true;
+
+            // Generate a random number and publish it as a state
+            const randomNumber = Math.random();
+            instance.publishState('reset', randomNumber);
+            instance.data.visible = true;
+            instance.publishState('visible', true);
+            instance.data.mainElementObserver.observe(instance.canvas);
+          } else {
+            // Call your destroy function and clean up resources
+            if (instance.data.app && instance.data.app.renderer) {
+                console.log('destroying');
+              instance.data.app.renderer.destroy(true);
+              // Clean up any other resources associated with the PIXI Application here
+              instance.data.app = null; // Reset the app reference
+              instance.data.mainElementObserver.unobserve(instance.canvas);
+              instance.data.visible = false;
+              instance.publishState('visible', false);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('An error occurred:', error);
+      }
+    });
+
+    // Start observing the target element
+    instance.data.visibleObserver.observe(instance.canvas);
+
+// Initialize the ResizeObserver to handle element resizes
+instance.data.mainElementObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    if (instance.data.resizeScroll) {
+      // Smooth out the resize scroll value by averaging it with the previous scroll position
+      instance.data.resizeScroll = (instance.data.scrollPositionBefore + instance.data.resizeScroll * 9) / 10;
+    } else {
+      instance.data.resizeScroll = instance.data.scrollPositionBefore;
+    }
+
+    // Trigger the PIXI app to resize (if it exists)
+    if (instance.data.app && instance.data.app.renderer) {
+      instance.data.app.resize();
+    }
+
+    // Calculate the new position based on the scroll and adjust the container's y position
+    let newPosition = Math.abs(instance.data.resizeScroll) * (instance.data.mainContainer.height - (instance.data.app ? instance.data.app.view.height : 0));
+    instance.data.mainContainer.position.y = -newPosition;
+  }
+});
+
+// Observe the target element for resizing
+instance.data.mainElementObserver.observe(instance.canvas);
+
 }

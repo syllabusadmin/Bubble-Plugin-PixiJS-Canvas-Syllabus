@@ -23,6 +23,10 @@
         "ABt": {
             "name": "canvas screenshot preview",
             "url": "//meta.cdn.bubble.io/f1677787035935x986844379014684400/canvas%20example%20screenshot.png"
+        },
+        "ACB": {
+            "name": "PIXI v7.2.4 Production Minified",
+            "url": "//meta-l.cdn.bubble.io/f1686164192100x234844294020750240/pixi.min.js"
         }
     },
     "dependencies": {

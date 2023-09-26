@@ -1,0 +1,13 @@
+{
+    "caption": "scrollReset",
+    "fields": {
+        "ACE": {
+            "caption": "ypadding",
+            "default_val": 0,
+            "editor": "DynamicValue",
+            "name": "ypadding",
+            "rank": 0,
+            "value": "number"
+        }
+    }
+}
