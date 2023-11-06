@@ -20,7 +20,7 @@ function(instance, context) {
     instance.data.rectangleBeingResized; //to be replaced by proxy
     instance.data.rectangleBeingMoved; //to be replaced by proxy
     instance.data.screenshot;
-    instance.data.imgixBaseURL = `https://d1muf25xaso8hp.cloudfront.net/`;
+    instance.data.imgixBaseURL = `https://d1muf25xaso8hp.cloudfront.net`;
     instance.data.dynamicFetchParam;
     instance.data.webpageSprite;
     instance.data.scrollBar;
@@ -551,11 +551,24 @@ function(instance, context) {
                 const isInBottomRightCorner =
                     x >= rectScaledX + rectScaledWidth - 20 &&
                     y >= rectScaledY + rectScaledHeight - 20;
+//APP-3038
+  const mouseX = e.data.global.x;
+  const mouseY = e.data.global.y;
 
+  // Get the local coordinates of `rectCreated` within its container
+  const rectLocal = rectCreated.toLocal(new PIXI.Point(mouseX, mouseY));
+
+  // Calculate the relative position
+  const relativeX = rectLocal.x;
+  const relativeY = rectLocal.y;
+  instance.publishState('selectedx', relativeX);    
+  instance.publishState('selectedy', relativeY);               
+//
+     
                 console.log('rect selected CSP', !rectCreated.isSelected);
                 if (!rectCreated.isSelected) {
                     instance.data.proxyVariables.selectedRectangle = rectCreated;
-                    instance.data.selectedRectangle = rectCreated;
+               instance.data.selectedRectangle = rectCreated;
                     console.log('rect selected insde', instance.data.selectedRectangle);
                 }
 
@@ -818,7 +831,7 @@ function(instance, context) {
       try {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            console.log('creating');
+            console.log('creating', entry);
             instance.data.app = new PIXI.Application({
               resizeTo: instance.canvas,
               backgroundColor: 0x000000,
@@ -836,7 +849,12 @@ function(instance, context) {
             // Call your destroy function and clean up resources
             if (instance.data.app && instance.data.app.renderer) {
                 console.log('destroying');
-              instance.data.app.renderer.destroy(true);
+              instance.data.app.destroy(true);
+              const elementsToRemove = document.querySelectorAll(`div.pixi-container[id=${instance.data.randomElementID}]`);
+
+elementsToRemove.forEach(element => {
+  element.remove();
+});
               // Clean up any other resources associated with the PIXI Application here
               instance.data.app = null; // Reset the app reference
               instance.data.mainElementObserver.unobserve(instance.canvas);
