@@ -9,5 +9,6 @@
     "license": "private",
     "link": "",
     "name": "PixiJS Canvas Syllabus",
-    "plugin_instructions": ""
+    "plugin_instructions": "",
+    "sa_node_version": 18
 }

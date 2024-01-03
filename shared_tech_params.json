@@ -27,10 +27,30 @@
         "ACB": {
             "name": "PIXI v7.2.4 Production Minified",
             "url": "//meta-l.cdn.bubble.io/f1686164192100x234844294020750240/pixi.min.js"
+        },
+        "ACS": {
+            "name": "pixi-filters-4.2.0.js",
+            "url": "//meta-q.cdn.bubble.io/f1699983726612x389675104612749100/pixi-filters4.2.0.js"
+        },
+        "ACT": {
+            "name": "pixijs-7.3.2",
+            "url": "//meta-q.cdn.bubble.io/f1699986197570x876757091656621700/pixijs-7.3.2.js"
+        },
+        "ACU": {
+            "name": "pixi-filters",
+            "url": "//meta-q.cdn.bubble.io/f1699987604974x690695618259924600/pixi-filters.mjs"
+        },
+        "ACV": {
+            "name": "pixi-filters-modules",
+            "url": "//meta-q.cdn.bubble.io/f1699988171381x866996500158177400/pixi.7.3.2min.mjs"
+        },
+        "ACX": {
+            "name": "Pixi-filters-5",
+            "url": "//meta-q.cdn.bubble.io/f1699988905013x683275540638249000/pixi-filters5.00.js"
         }
     },
     "dependencies": {
-        "plugin_api_version": 3,
+        "plugin_api_version": "4",
         "use_jquery": false
     }
 }

@@ -18,6 +18,16 @@
             "caption": "Drawn Label created",
             "doc": "Triggers when a label is drawn",
             "name": "drawn_label_created"
+        },
+        "ACP": {
+            "caption": "Menu selected",
+            "doc": "The 3 dot menu is selected",
+            "name": "menu_selected"
+        },
+        "ACZ": {
+            "caption": "Drawn Label drawn - not yet created",
+            "doc": "When the label is drawn but not entered into the DB",
+            "name": "drawn_label_drawn_not_yet_created"
         }
     },
     "fields": {
@@ -200,12 +210,22 @@
             "name": "reset",
             "rank": 19,
             "value": "number"
+        },
+        "ACb": {
+            "caption": "Label Menu Active",
+            "doc": "The label ID of the menu thats currently visible",
+            "editor": "DynamicValue",
+            "name": "label_menu_active",
+            "optional": true,
+            "rank": 20,
+            "value": "text"
         }
     },
     "icon": "ion-android-checkbox-blank",
     "property_applications": {
         "Background": true,
         "Border": true,
+        "Font": true,
         "MinWidth": true,
         "resizable": true
     },
@@ -283,6 +303,35 @@
                 "fn": "function(properties, context) {\n\n\n\n}"
             },
             "name": "selectedy",
+            "value": "number"
+        },
+        "ACR": {
+            "caption": "Selected menu DAS",
+            "doc": "The drawn attribute (label) snippet that was selected from the 3 dot menu",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "name": "selected_menu_das",
+            "value": "custom_data_ABE"
+        },
+        "ACY": {
+            "caption": "Created MouseUp Positions",
+            "doc": "The [x,y] of the mouse when the label was created",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "is_list": true,
+            "name": "created_mouseup_positions",
+            "value": "number"
+        },
+        "ACa": {
+            "caption": "Immediate label width/height",
+            "doc": "The [width,height] of the mouse when the label was created",
+            "initialization_code": {
+                "fn": "function(properties, context) {\n\n\n\n}"
+            },
+            "is_list": true,
+            "name": "immediate_label_width/height",
             "value": "number"
         }
     }

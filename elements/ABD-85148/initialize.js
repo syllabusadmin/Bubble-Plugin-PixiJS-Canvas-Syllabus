@@ -6,8 +6,8 @@ function(instance, context) {
     instance.data.randomElementID = `pixi-${Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)}`
     instance.data.webpageScreenshot;
     instance.data.labelFont = "Inter";
-    instance.data.labelFontSize = "20";
-    instance.data.labelFontColor = "000000";
+    instance.data.labelFontSize = "13";
+    instance.data.labelFontColor = "02132D";
     instance.data.normalColorAlpha = ".3";
     instance.data.highlightColorAlpha = .3;
     instance.data.dasOrigin;
@@ -33,14 +33,29 @@ function(instance, context) {
         backgroundColor: 0x000000,
         backgroundAlpha: 0,
     });
+    instance.data.labelMenuSelected;
+    //settings for super quality
     PIXI.settings.ROUND_PIXELS = true;
+    PIXI.settings.RENDER_OPTIONS.antialias = true;
+    PIXI.settings.RENDER_OPTIONS.autoDensity = true;
+
+    PIXI.Graphics.curves.epsilon = 0.000001
+
+
+
+
+
+
+
+
+
 
     instance.data.mainContainer = new PIXI.Container();
     instance.data.mainContainer.name = "mainContainer";
     instance.data.app.stage.addChild(instance.data.mainContainer);
     instance.data.dragColor = "DE3249"; //red default
     instance.data.highlightColor = "FFFF00"; //yellow
-    instance.data.resizeColor = "FFFF00"; //"0000FF"; //blue
+    instance.data.resizeColor = "A9A9A9";
     instance.data.displayLabelText;
     // Start position of events
     instance.data.startPosition = null;
@@ -79,7 +94,6 @@ function(instance, context) {
 
             //check if the property is the selected rectangle
             if (prop === `selectedRectangle`) {
-                console.log('CSP rect prop selected', value, prop);
                 //check if the value is not null and the value is not the same as the previous value
                 if (value && value !== previousValue) {
                     //loop through all of the containers on the main container (the squares)
@@ -87,50 +101,7 @@ function(instance, context) {
                     setTimeout(() => {
                         instance.triggerEvent("label_selected")
                     }, 100)
-                    //this was the original code that was used to highlight the rectangles locally. We're not using this anymore, but I'm leaving it here for reference. It still works I just ran out of time to implement it.
-                    instance.data.mainContainer.children.forEach((child) => {
-                        if (child.name !== "webpage") {
-                            //check if the current rectangle selected has the same labelUniqueID as the child we're looping through
-                            // if (child.labelUniqueID === value.labelUniqueID) {
-                            //     //if it does, we set the child to be highlighted and selected
-                            //     child.isHighlighted = true;
-                            //     //calculate the width and height of the rectangle including the border
-                            //     let borderWidth = child.line.width;
-                            //     let height = child.height - borderWidth;
-                            //     let width = child.width - borderWidth;
-                            //     //the rectangle is highlighted - so it becomes movable
-                            //     child.cursor = "move";
 
-
-
-                            //     //clear the drawing, and redraw the square with the highlight color
-                            //     child.clear();
-                            //     child.beginFill(instance.data.highlightColorAsHex, instance.data.highlightColorAlpha);
-                            //     child.lineStyle(1, 0x000000, 1);
-
-                            //     //we minus 1 to account for the border. Theres a slight increase
-                            //     child.drawRect(0, 0, width, height);
-                            //     child.endFill();
-                            //     child.isHighlighted = true;
-                            // }
-                            if (child.labelUniqueID !== value.labelUniqueID && child.isHighlighted) {
-                                child.isHighlighted = false;
-                                child.isSelected = false;
-                                child.cursor = "pointer";
-                                let height = child.height - 1;
-                                let width = child.width - 1;
-                                let color = `0x` + child.labelColor;
-                                child
-                                    .clear()
-                                    .beginFill(color, instance.data.normalColorAlpha)
-                                    .drawRect(0, 0, width, height)
-                                    .endFill()
-                                    .beginHole()
-                                    .drawRect(5, 5, width - 10, height - 10)
-                                    .endHole();
-                            }
-                        }
-                    });
                     value.isSelected = true;
 
                     //set the value of the property to the new value
@@ -149,14 +120,6 @@ function(instance, context) {
                             let height = child.height - 1;
                             let width = child.width - 1;
                             let color = `0x` + child.labelColor;
-                            child
-                                .clear()
-                                .beginFill(color, instance.data.normalColorAlpha)
-                                .drawRect(0, 0, width, height)
-                                .endFill()
-                                .beginHole()
-                                .drawRect(5, 5, width - 10, height - 10)
-                                .endHole();
 
                         }
                     });
@@ -219,7 +182,6 @@ function(instance, context) {
     instance.data.dynamicFetchParam = instance.data.dynamicFetchParam.includes("version") ? instance.data.dynamicFetchParam : "";
     instance.data.dynamicFetchParam = instance.data.dynamicFetchParam.trim();
 
-    //functions are all below----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     //creates the pixi scrollbar graphic
     instance.data.createScrollBar = function (mainContainer, pixiApp, div) {
@@ -390,81 +352,163 @@ function(instance, context) {
             if (createCoord.width < 20) return;
             if (createCoord.height < 20) return;
 
-            instance.data.createExistingRect(createCoord, das.labelColor, das.attributeName, dasID, dasLabelID);
+            instance.data.createExistingRect(createCoord, das.labelColor, das.attributeName, dasID, dasLabelID, hovered = false);
         });
     }
 
     //adds the text label to the rectangle as a child
     instance.data.addLabel = function (rect) {
         const label = new PIXI.Text(rect.name, {
-            fontFamily: instance.data.labelFont,
-            fontSize: instance.data.labelFontSize,
-            fill: "0x" + instance.data.labelFontColor,
-            stroke: 0xffffff, // White border
-            strokeThickness: 4, // Thickness of the border
-            dropShadow: true,
-            dropShadowColor: 0x000000, // Black drop shadow
-            dropShadowAlpha: 0.8, // Adjust opacity as needed (0 transparent, 1 opaque)
-            dropShadowDistance: 2, // Adjust the distance of the shadow from the text
-            dropShadowBlur: 2, // Increase the blur for a more dispersed shadow
-            wordWrap: true,
+            fontFamily: "Roobert bold",
+            fontSize: 13,
+            fill: 0x02132D,
+            fontWeight: 'bold',
+
+            wordWrap: false,
             wordWrapWidth: rect.width,
             breakWords: true,
+            letterSpacing: .25
         });
-        rect.addChild(label);
-        label.position.set(10, 10);
+        label.position.set(10, 5);
+        label.name = "label";
+        label.fullText = rect.name;
 
-        let { width, height } = rect;
-        let x = 0, y = 0;
+        function addEllipsis(textObject, maxWidth) {
+            // Store the original text if it's not already stored
+            if (textObject.originalText === undefined) {
+                textObject.originalText = textObject.fullText;
+            }
 
+            // Measure the text
+            let textMetrics = PIXI.TextMetrics.measureText(textObject.originalText, textObject.style);
 
-        let labelX = 10;
-        let labelY = 10;
-        let labelWidth = label.width;
-        let labelHeight = label.height;
+            if (textMetrics.width <= maxWidth) {
+                // If the full text fits, use it without ellipsis
+                textObject.text = textObject.originalText;
+            } else {
+                // If the full text doesn't fit, apply ellipsis
+                textObject.text = textObject.originalText;
+                while (textMetrics.width > maxWidth && textObject.text.length > 1) {
+                    textObject.text = textObject.text.slice(0, -1); // Remove one character at a time
+                    textMetrics = PIXI.TextMetrics.measureText(textObject.text + '...', textObject.style);
+                }
 
-
-        // if the recntangle is not highlighted, create the custom hit area that wraps around the rectangle and the label, else default to the visible area defined by pixis internals
-        if (!rect.isHighlighted) {
-            invisibleHitArea = new PIXI.Polygon([
-                //starts wrapping around the outer rectangle
-                new PIXI.Point(x - 5, y - 5), // top left corner of outer rectangle
-                new PIXI.Point(x + width + 5, y - 5), // top right corner of outer rectangle
-                new PIXI.Point(x + width + 5, y + height + 5), // bottom right corner of outer rectangle
-                new PIXI.Point(x - 5, y + height + 5), // bottom left corner of outer rectangle
-                new PIXI.Point(x - 5, y - 5), // top left corner of outer rectangle
-
-                // //starts wrapping around the label
-                new PIXI.Point(labelX, labelY), // top left corner of label
-                new PIXI.Point(labelX + labelWidth, labelY), // top right corner of label
-                new PIXI.Point(labelX + labelWidth, labelY + labelHeight), // bottom right corner of label
-                new PIXI.Point(x + 10, labelY + labelHeight), // bottom of label, 5px inside of outer rectangle
-
-                // //starts wrapping around the inner rectangle
-                new PIXI.Point(x + 10, y + height - 10), // bottom left corner of inner rectangle
-                new PIXI.Point(x + width - 10, y + height - 10), // bottom right corner of inner rectangle
-                new PIXI.Point(x + width - 10, y + 10), // top right corner of inner rectangle
-                new PIXI.Point(x + 10, y + 10), //top left of inner
-            ])
-
-            // create the graphics object for the hit area. this is not necessary, but it is helpful for debugging
-            const hitAreaGraphics = new PIXI.Graphics();
-            hitAreaGraphics.beginFill(0xFF0000, 0.0);
-            hitAreaGraphics.drawPolygon(invisibleHitArea);
-            hitAreaGraphics.endFill();
-
-            // add the hit area to the rectangle
-            rect.addChild(hitAreaGraphics);
-
-            rect.hitArea = invisibleHitArea;
+                // Check if even the ellipsis doesn't fit
+                if (textMetrics.width > maxWidth) {
+                    textObject.text = ''; // Set text to empty if even ellipsis doesn't fit
+                } else {
+                    textObject.text += '...'; // Add ellipsis at the end
+                }
+            }
         }
-        return label;
+
+        const rightPaddingForMenu = 25;
+        // Use the function to add ellipsis to your text object
+        addEllipsis(label, rect.width - 65); // Assuming 200 is the maximum width you allow
+
+
+        // Padding and radius for rounded corners
+        const paddingX = 8;
+        const paddingY = 4;
+        const radius = 10; // Radius of the rounded corners
+
+        // Calculate the position and size of the background
+        const bgX = label.x - paddingX + 1;
+        const bgY = label.y - paddingY + 2;
+        const bgWidth = label.width + (paddingX * 2) + rightPaddingForMenu; // Increase width for the right padding
+        const bgHeight = label.height + (paddingY * 2);
+
+        // Create the background
+        const background = new PIXI.Graphics();
+        background.beginFill(rect.labelColor); // Set the background color
+        // Start from top-left corner
+        background.moveTo(bgX + radius, bgY);
+        // Draw top line to top-right corner
+        background.lineTo(bgX + bgWidth, bgY);
+        // Draw right line to bottom-right corner
+        background.lineTo(bgX + bgWidth, bgY + bgHeight - radius);
+        // Draw arc for the bottom-right rounded corner
+        background.arc(bgX + bgWidth - radius, bgY + bgHeight - radius, radius, 0, Math.PI / 2);
+        // Draw bottom line to bottom-left corner
+        background.lineTo(bgX, bgY + bgHeight);
+        // Draw left line up to the top-left rounded corner
+        background.lineTo(bgX, bgY + radius);
+        // Draw arc for the top-left rounded corner
+        background.arc(bgX + radius, bgY + radius, radius, Math.PI, Math.PI * 1.5);
+        background.endFill();
+
+        background.name = "background";
+
+
+
+        // Add the background behind the label
+        rect.addChildAt(background, 0);
+        rect.addChild(label);
+
+
+        background.position.set(0, 0);
+        background.eventMode = 'dynamic';
+
+        return { label, background };
     };
 
+    instance.data.createThreeDotMenu = function (x, y, radius, separation, labelColor) {
+        const menu = new PIXI.Graphics();
+        radius = 1.5;
+
+        // Set the line style for each circle
+        menu.lineStyle(1, labelColor);
+
+        menu.beginFill(labelColor); // Color of dots
+        // Draw three circles in a vertical line
+        for (let i = 0; i < 3; i++) {
+            menu.drawCircle(x, y + (i * separation), radius);
+        }
+        menu.endFill();
+
+        // Define additional padding around the hit area
+        const padding = 14; // 10 pixels of padding on all sides
+
+        // The hit area width is twice the radius plus the left and right padding
+        const hitWidth = radius * 2 + padding * 2;
+        // The hit area height is the total height covered by the dots and the separation between them plus top and bottom padding
+        const hitHeight = separation * 2 + radius * 2 + padding * 2;
+
+        menu.hitArea = new PIXI.Rectangle(x - radius - padding, y - radius - padding + 4, hitWidth, hitHeight);
+
+        menu.name = "threeDotMenu";
+
+
+        // Make the graphic interactive
+        menu.interactive = true; // Correct property to make the graphic interactive
+        menu.addEventListener("pointerover", (e) => {
+            e.stopPropagation();
+            menu.cursor = "pointer";
+        });
+        menu.addEventListener("pointerup", (e) => {
+            e.stopPropagation();
+            instance.publishState("selected_menu_das", menu.parent.id)
+            instance.triggerEvent("menu_selected")
+
+        });
+        menu.addEventListener("pointerdown", (e) => {
+            e.stopPropagation();
+            instance.publishState("selected_menu_das", menu.parent.id)
+
+        });
+
+        return menu;
+    }
+
+
+
+
     //creates a rectangle with a border, or a highlighted rectangle, if that is the label to be highlighted. This is the function that essentially created every rectangle
-    instance.data.createExistingRect = function (createCoord, color, name, id, labelID) {
+    instance.data.createExistingRect = function (createCoord, color, name, id, labelID, hovered = false) {
         //store the rectangle in a variable locally
         let rectCreated;
+
+
 
         if (color == null) {
             color = instance.data.highlightColor;
@@ -476,28 +520,229 @@ function(instance, context) {
         //create a highlighted rectangle if it is the label to be highlighted
         else if (labelID === instance.data.proxyVariables.labelToHighlight) {
             //subtract 1 to account for the border. Aka linestyle
-            rectCreated = instance.data.createHighlightedRectangle(0, 0, createCoord.width - 1, createCoord.height - 1)
+
+
+            rectCreated = instance.data.createBorderedRectangle(0, 0, createCoord.width - 1, createCoord.height - 1, `000000`);
+            rectCreated.isHighlighted = true;
+
+
+            // Calculate positions
+            const midY = createCoord.height / 2;
+            const bottomY = createCoord.height;
+            const rightX = createCoord.width - 3;
+
+            // Radius for rounded corners
+            const cornerRadius = 12; // Adjust this to match your rectangle's corner radius
+
+            // Shadow offset
+            const shadowOffset = 2;
+
+
+
+            // Create a new graphics object for the custom shadow
+            const shadow = new PIXI.Graphics();
+            shadow.lineStyle(4, 0x000000, .25); // Semi-transparent black
+
+            let triangleSize = 20; // The size of the triangle
+
+            let triangle = new PIXI.Graphics();
+            triangle.name = "resizeIndicator"
+
+            //update the mouse to be a resize cursor
+            triangle.cursor = "nwse-resize";
+            triangle.interactive = true;
+
+            let trinagleCornerRadius = 5;
+            triangle.beginFill(0x000000); // Set the color of the triangle
+
+            // Start drawing the triangle
+            triangle.moveTo(rightX - triangleSize, bottomY - 1); // start at the bttom left of the rectangle, inside the triangle
+            //move to the bottom right of the tringle, arced
+            triangle.arcTo(rightX + 2, bottomY - 1, rightX + 2, bottomY - triangleSize - 1, trinagleCornerRadius);
+            //move up to the top of the triangle
+            triangle.lineTo(rightX + 2, bottomY - triangleSize - 5);
+            //move back to the bottom left of the triangle
+            triangle.lineTo(rightX - triangleSize - 1, bottomY - 1);
+
+
+
+
+
+
+            triangle.endFill();
+
+
+            // Add the triangle to the container
+            rectCreated.addChild(triangle);
+
+            // Create a new graphics object for the new custom shadow
+            const newShadow = new PIXI.Graphics();
+            // Set the shadow style (width, color, alpha)
+            // Assuming black color for the shadow and a slight alpha for transparency
+            newShadow.lineStyle(2, 0x000000, 0.35); // Semi-transparent black
+            // Ending Y position for the new shadow, somewhere above midY
+            // Starting Y position for the new shadow (top of the shape)
+            const topY = 10;
+            const endY = 10; // Adjust this value as needed
+
+            // Draw the new custom shadow
+            newShadow.moveTo(-3.5 + shadowOffset, topY);
+            newShadow.lineTo(-3.5 + shadowOffset, bottomY - cornerRadius + shadowOffset);
+            newShadow.arcTo(-3.5 + shadowOffset, bottomY + shadowOffset, cornerRadius + shadowOffset, bottomY + shadowOffset, cornerRadius);
+            newShadow.lineTo(rightX - cornerRadius + shadowOffset, bottomY + shadowOffset);
+            newShadow.arcTo(rightX + shadowOffset, bottomY + shadowOffset, rightX + shadowOffset, bottomY - cornerRadius + shadowOffset, cornerRadius);
+            newShadow.lineTo(rightX + shadowOffset, endY); // Draw up to the specified endY
+
+            // Set the shadow style (width, color, alpha)
+            // Assuming black color for the shadow and a slight alpha for transparency
+
+
+            // Draw the custom shadow, following the same path as your line
+            shadow.moveTo(-3.5 + shadowOffset, createCoord.height + 0);
+
+            shadow.lineTo(rightX - cornerRadius + shadowOffset, bottomY + shadowOffset);
+            shadow.arcTo(rightX + shadowOffset, bottomY + shadowOffset, rightX + shadowOffset, bottomY - cornerRadius + shadowOffset, cornerRadius);
+            shadow.lineTo(rightX + shadowOffset, midY + shadowOffset);
+
+            // Apply a blur filter to the shadow to make it soft
+            //new PIXI.BlurFilter (strength, quality, resolution, kernelSize)
+            const blurFilter = new PIXI.filters.BlurFilter(8, 5); // Adjust blur strength and quality as needed
+            shadow.filters = [blurFilter];
+            newShadow.filters = [blurFilter];
+            shadow.name = "shadow";
+            newShadow.name = "newShadow";
+
+
+
+
+            rectCreated.addChild(shadow);
+            rectCreated.addChild(newShadow);
+
 
         }
 
         //setup custom properties to reference later
         rectCreated.labelColor = color;
         rectCreated.oldColor = color;
+        rectCreated.accessible = true;
         rectCreated.name = name;
         rectCreated.id = id;
         rectCreated.labelUniqueID = labelID;
         rectCreated.intialScale = instance.data.app.view.width / instance.data.intialWebpageWidth;
+
+
+
 
         //then we move it to final position and add it to the main container
         rectCreated.position.copyFrom(
             new PIXI.Point(createCoord.startRectX, createCoord.startRectY)
         );
         instance.data.mainContainer.addChild(rectCreated);
-        if (instance.data.displayLabelText) {
-            let labelText = instance.data.addLabel(rectCreated);
+        if (instance.data.displayLabelText && rectCreated.name || hovered || rectCreated.id === instance.data.labelMenuSelected) {
+
+            let { label, background } = instance.data.addLabel(rectCreated);
+
+
+
+
+
+            let x = 0;
+            let y = 0;
+            let width = rectCreated.width;
+            let height = rectCreated.height;
+            let hitAreaPoints;
+            if (labelID !== instance.data.proxyVariables.labelToHighlight) {
+                hitAreaPoints = [
+                    new PIXI.Point(x - 3, y - 3), // top left corner of outer rectangle
+                    new PIXI.Point(x + width + 3, y - 3), // top right corner of outer rectangle
+                    new PIXI.Point(x + width + 3, y + height + 3), // bottom right corner of outer rectangle
+                    new PIXI.Point(x - 3, y + height + 3), // bottom left corner of outer rectangle
+                    new PIXI.Point(x - 3, y + background.height + 5), // up until the bottom of the label
+                    new PIXI.Point(x + background.width + 5, background.height + 5),// bottom right of the label
+                    new PIXI.Point(x + background.width + 5, y + 6), //back up to the shape + 3px
+                    new PIXI.Point(x + width - 18, y + 6), //over until the 3 dot menu
+                    new PIXI.Point(x + width - 18, y + 28),// down to the bototom of the 3 dot
+                    new PIXI.Point(x + width - 6, y + 28),// back to the inside of the shape
+                    new PIXI.Point(x + width - 16, y + height - 6),// down to the bottom of the shape on the inside
+                    new PIXI.Point(x + 6, y + height - 6),// to the bottom left inside of the shape
+                    new PIXI.Point(x + 6, y + background.height),// back up to the bottom of the label
+                    new PIXI.Point(x - 3, y + background.height),// back outside on the left side of the shape
+
+
+                ];
+            }
+            else {
+                hitAreaPoints = [
+                    new PIXI.Point(x - 3, y - 3), // top left corner of outer rectangle
+                    new PIXI.Point(x + width + 3, y - 3), // top right corner of outer rectangle
+                    new PIXI.Point(x + width + 3, y + height - 3), // bottom right corner of outer rectangle
+                    new PIXI.Point(x - 3, y + height - 3), // bottom left corner of outer rectangle
+                    new PIXI.Point(x - 3, y + background.height + 5), // up until the bottom of the label
+                    new PIXI.Point(x + background.width + 5, background.height + 5),// bottom right of the label
+                    new PIXI.Point(x + background.width + 5, y + 6), //back up to the shape + 3px
+                    new PIXI.Point(x + width - 18, y + 6), //over until the 3 dot menu
+                    new PIXI.Point(x + width - 18, y + 28),// down to the bototom of the 3 dot
+                    new PIXI.Point(x + width - 6, y + 28),// back to the inside of the shape
+                    new PIXI.Point(x + width - 16, y + height - 12),// down to the bottom of the shape on the inside
+                    new PIXI.Point(x + 6, y + height - 12),// to the bottom left inside of the shape
+                    new PIXI.Point(x + 6, y + background.height),// back up to the bottom of the label
+                    new PIXI.Point(x - 3, y + background.height),// back outside on the left side of the shape
+                ]
+            }
+
+
+            // Create the polygon for the hit area
+            rectCreated.hitArea = new PIXI.Polygon(hitAreaPoints);
+
+
+
+            rectCreated.drawPolygon(hitAreaPoints);
+            let threeDot;
+            if (!rectCreated.isHighlighted) {
+                threeDot = instance.data.createThreeDotMenu(background.width - 10, 8, 1.5, 6, 0x02132D);
+            }
+            else {
+                threeDot = instance.data.createThreeDotMenu(background.width - 10, 8, 1.5, 6, 0x02132D);
+            }
+
+            rectCreated.addChild(threeDot);
+        }
+        if (!instance.data.displayLabelText && rectCreated.name && !hovered) {
+
+            let x = 0;
+            let y = 0;
+            let width = rectCreated.width;
+            let height = rectCreated.height;
+
+
+
+            let hitAreaPoints = [
+                new PIXI.Point(x - 3, y - 3), // top left corner of outer rectangle
+                new PIXI.Point(x + width + 3, y - 3), // top right corner of outer rectangle
+                new PIXI.Point(x + width + 3, y + height + 3),// bottom right corner of outer rectangle
+                new PIXI.Point(x - 3, y + height + 3),// bottom left corner of outer rectangle
+                new PIXI.Point(x - 3, y - 3), // top left corner of outer rectangle
+                new PIXI.Point(x + 6, y + 6),//top left inner rectangle
+                new PIXI.Point(x + width - 16, y + 6),//all the way to the 3 dot
+                new PIXI.Point(x + width - 16, y + 28),//down to the bottom of the 3 dot
+                new PIXI.Point(x + width - 6, y + 28),//back up to the inside right of the shape
+                new PIXI.Point(x + width - 16, y + height - 6),//down to the bottom right inside
+                new PIXI.Point(x + 6, y + height - 6),//left to the inside bottom left
+                new PIXI.Point(x + 6, y + 6),//up to the inside top left
+
+
+            ];
+
+            // Create the polygon for the hit area
+            rectCreated.hitArea = new PIXI.Polygon(hitAreaPoints);
+
+
+            rectCreated.drawPolygon(hitAreaPoints);
+
+
         }
         instance.data.rectangles.push(rectCreated);
-        rectCreated.interactive = true;
+
 
         //add event listeners to the rectangle
         rectCreated.addEventListener("pointermove", event => {
@@ -540,7 +785,6 @@ function(instance, context) {
         }, { passive: true });
         rectCreated.addEventListener("pointerdown", e => {
             e.stopPropagation();
-            console.log('rect pointerdown', rectCreated, !rectCreated.isSelected, e.data.button);
             if (e.data.button === 0) {
                 const x = e.global.x - instance.data.mainContainer.x;
                 const y = e.global.y - instance.data.mainContainer.y;
@@ -551,25 +795,23 @@ function(instance, context) {
                 const isInBottomRightCorner =
                     x >= rectScaledX + rectScaledWidth - 20 &&
                     y >= rectScaledY + rectScaledHeight - 20;
-//APP-3038
-  const mouseX = e.data.global.x;
-  const mouseY = e.data.global.y;
+                //APP-3038
+                const mouseX = e.data.global.x;
+                const mouseY = e.data.global.y;
 
-  // Get the local coordinates of `rectCreated` within its container
-  const rectLocal = rectCreated.toLocal(new PIXI.Point(mouseX, mouseY));
+                // Get the local coordinates of `rectCreated` within its container
+                const rectLocal = rectCreated.toLocal(new PIXI.Point(mouseX, mouseY));
 
-  // Calculate the relative position
-  const relativeX = rectLocal.x;
-  const relativeY = rectLocal.y;
-  instance.publishState('selectedx', relativeX);    
-  instance.publishState('selectedy', relativeY);               
-//
-     
-                console.log('rect selected CSP', !rectCreated.isSelected);
+                // Calculate the relative position
+                const relativeX = rectLocal.x;
+                const relativeY = rectLocal.y;
+                instance.publishState('selectedx', relativeX);
+                instance.publishState('selectedy', relativeY);
+                //
+
                 if (!rectCreated.isSelected) {
                     instance.data.proxyVariables.selectedRectangle = rectCreated;
-               instance.data.selectedRectangle = rectCreated;
-                    console.log('rect selected insde', instance.data.selectedRectangle);
+                    instance.data.selectedRectangle = rectCreated;
                 }
 
 
@@ -665,7 +907,7 @@ function(instance, context) {
 
 
                     //if it has, update the rectangle's position in the database
-                    instance.data.updateDrawnLabel(instance.data.proxyVariables.rectangleBeingMoved.x, instance.data.proxyVariables.rectangleBeingMoved.y, instance.data.proxyVariables.rectangleBeingMoved.width, instance.data.proxyVariables.rectangleBeingMoved.height, drawnScale, instance.data.proxyVariables.rectangleBeingMoved.id)
+                    instance.data.updateDrawnLabel(instance.data.proxyVariables.rectangleBeingMoved.x, instance.data.proxyVariables.rectangleBeingMoved.y, instance.data.proxyVariables.rectangleBeingMoved.width + 1, instance.data.proxyVariables.rectangleBeingMoved.height + 1, drawnScale, instance.data.proxyVariables.rectangleBeingMoved.id)
 
 
 
@@ -684,7 +926,7 @@ function(instance, context) {
             instance.data.rectangleBeingResized = null;
             instance.data.proxyVariables.rectangleBeingResized = null;
         }, { passive: true });
-
+        return rectCreated;
 
 
     };
@@ -737,17 +979,26 @@ function(instance, context) {
         let { start, size } = instance.data.getStartAndSize(instance.data.startPosition, currentPosition, "draw");
         if (size.x < 5 || size.y < 5) return;
 
-        // When we scale rect we have to give it new cordinates
+
+
+        /// Define the border width
+        const borderWidth = 3;
+
+        // Adjust the shape size to account for the border
+        const adjustedWidth = size.x;
+        const adjustedHeight = size.y;
+
+        // Draw the shape with the border
         resizeRectange.clear();
         resizeRectange.position.copyFrom(start);
+
+        // Set the line style for the border
+        resizeRectange.lineStyle(borderWidth, 0x808080);
+
+        // Fill color and draw the rectangle
         resizeRectange
-            .beginFill("0x" + instance.data.resizeColor, 0.5)
-            .lineStyle({
-                color: "0x" + instance.data.resizeColor,
-                alpha: 0.5,
-                width: 1,
-            })
-            .drawRect(0, 0, size.x, size.y)
+            .beginFill(0xA9A9A9, 0.5)
+            .drawRoundedRect(0, 0, adjustedWidth, adjustedHeight, 14)
             .endFill();
         instance.data.mainContainer.addChild(resizeRectange);
     };
@@ -763,19 +1014,26 @@ function(instance, context) {
         y,
         width,
         height,
-        color
+        color,
     ) {
 
         // create a polygon that will be used as the hit area for the rectangle this just draws a shape around the borders of the rectangle
         // 
 
-        let rectangle = new PIXI.Graphics()
-            .beginFill("0x" + color, instance.data.normalColorAlpha)
-            .drawRect(x, y, width, height)
+        let rectangle = new PIXI.Graphics();
+
+        rectangle.beginFill("0x" + color, instance.data.normalColorAlpha)
+            .drawRoundedRect(x, y, width, height, 14)
             .endFill()
             .beginHole()
-            .drawRect(5, 5, width - 10, height - 10)
+            .drawRoundedRect(3, 3, width - 6, height - 6, 12)
             .endHole();
+
+
+
+
+
+        rectangle.eventMode = 'dynamic';
 
         return rectangle;
     };
@@ -783,10 +1041,12 @@ function(instance, context) {
     // This generates our highlighted rectangle style.
     instance.data.createHighlightedRectangle = function (x, y, width, height) {
         let rectangle = new PIXI.Graphics()
-            .beginFill("0x" + instance.data.highlightColor, instance.data.highlightColorAlpha)
-            .lineStyle(1, 0x000000, 1)
-            .drawRect(x, y, width, height)
-            .endFill();
+            .beginFill(0x000000)
+            .drawRoundedRect(x, y, width, height, 14)
+            .endFill()
+            .beginHole()
+            .drawRoundedRect(3, 3, width - 6, height - 6, 12)
+            .endHole();
 
         rectangle.isHighlighted = true;
 
@@ -826,73 +1086,71 @@ function(instance, context) {
             }
             );
     }
-    
+
     instance.data.visibleObserver = new IntersectionObserver(async (entries, observer) => {
-      try {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            console.log('creating', entry);
-            instance.data.app = new PIXI.Application({
-              resizeTo: instance.canvas,
-              backgroundColor: 0x000000,
-              backgroundAlpha: 0,
+        try {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    instance.data.app = new PIXI.Application({
+                        resizeTo: instance.canvas,
+                        backgroundColor: 0x000000,
+                        backgroundAlpha: 0,
+                    });
+                    instance.data.start = true;
+
+                    // Generate a random number and publish it as a state
+                    const randomNumber = Math.random();
+                    instance.publishState('reset', randomNumber);
+                    instance.data.visible = true;
+                    instance.publishState('visible', true);
+                    instance.data.mainElementObserver.observe(instance.canvas);
+                } else {
+                    // Call your destroy function and clean up resources
+                    if (instance.data.app && instance.data.app.renderer) {
+                        instance.data.app.destroy(true);
+                        const elementsToRemove = document.querySelectorAll(`div.pixi-container[id=${instance.data.randomElementID}]`);
+
+                        elementsToRemove.forEach(element => {
+                            element.remove();
+                        });
+                        // Clean up any other resources associated with the PIXI Application here
+                        instance.data.app = null; // Reset the app reference
+                        instance.data.mainElementObserver.unobserve(instance.canvas);
+                        instance.data.visible = false;
+                        instance.publishState('visible', false);
+                    }
+                }
             });
-            instance.data.start = true;
-
-            // Generate a random number and publish it as a state
-            const randomNumber = Math.random();
-            instance.publishState('reset', randomNumber);
-            instance.data.visible = true;
-            instance.publishState('visible', true);
-            instance.data.mainElementObserver.observe(instance.canvas);
-          } else {
-            // Call your destroy function and clean up resources
-            if (instance.data.app && instance.data.app.renderer) {
-                console.log('destroying');
-              instance.data.app.destroy(true);
-              const elementsToRemove = document.querySelectorAll(`div.pixi-container[id=${instance.data.randomElementID}]`);
-
-elementsToRemove.forEach(element => {
-  element.remove();
-});
-              // Clean up any other resources associated with the PIXI Application here
-              instance.data.app = null; // Reset the app reference
-              instance.data.mainElementObserver.unobserve(instance.canvas);
-              instance.data.visible = false;
-              instance.publishState('visible', false);
-            }
-          }
-        });
-      } catch (error) {
-        console.error('An error occurred:', error);
-      }
+        } catch (error) {
+            console.error('An error occurred:', error);
+        }
     });
 
     // Start observing the target element
     instance.data.visibleObserver.observe(instance.canvas);
 
-// Initialize the ResizeObserver to handle element resizes
-instance.data.mainElementObserver = new ResizeObserver((entries) => {
-  for (const entry of entries) {
-    if (instance.data.resizeScroll) {
-      // Smooth out the resize scroll value by averaging it with the previous scroll position
-      instance.data.resizeScroll = (instance.data.scrollPositionBefore + instance.data.resizeScroll * 9) / 10;
-    } else {
-      instance.data.resizeScroll = instance.data.scrollPositionBefore;
-    }
+    // Initialize the ResizeObserver to handle element resizes
+    instance.data.mainElementObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            if (instance.data.resizeScroll) {
+                // Smooth out the resize scroll value by averaging it with the previous scroll position
+                instance.data.resizeScroll = (instance.data.scrollPositionBefore + instance.data.resizeScroll * 9) / 10;
+            } else {
+                instance.data.resizeScroll = instance.data.scrollPositionBefore;
+            }
 
-    // Trigger the PIXI app to resize (if it exists)
-    if (instance.data.app && instance.data.app.renderer) {
-      instance.data.app.resize();
-    }
+            // Trigger the PIXI app to resize (if it exists)
+            if (instance.data.app && instance.data.app.renderer) {
+                instance.data.app.resize();
+            }
 
-    // Calculate the new position based on the scroll and adjust the container's y position
-    let newPosition = Math.abs(instance.data.resizeScroll) * (instance.data.mainContainer.height - (instance.data.app ? instance.data.app.view.height : 0));
-    instance.data.mainContainer.position.y = -newPosition;
-  }
-});
+            // Calculate the new position based on the scroll and adjust the container's y position
+            let newPosition = Math.abs(instance.data.resizeScroll) * (instance.data.mainContainer.height - (instance.data.app ? instance.data.app.view.height : 0));
+            instance.data.mainContainer.position.y = -newPosition;
+        }
+    });
 
-// Observe the target element for resizing
-instance.data.mainElementObserver.observe(instance.canvas);
+    // Observe the target element for resizing
+    instance.data.mainElementObserver.observe(instance.canvas);
 
 }
