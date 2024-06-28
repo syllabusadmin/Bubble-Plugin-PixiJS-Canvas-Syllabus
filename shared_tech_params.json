@@ -47,6 +47,14 @@
         "ACX": {
             "name": "Pixi-filters-5",
             "url": "//meta-q.cdn.bubble.io/f1699988905013x683275540638249000/pixi-filters5.00.js"
+        },
+        "ACe": {
+            "name": "pixi.min-v8.1.0.js",
+            "url": "//meta-q.cdn.bubble.io/f1712683668634x212155991561070700/pixi.min-v8.1.0.js"
+        },
+        "ACf": {
+            "name": "pixi-filters-v6.0.0",
+            "url": "//meta-q.cdn.bubble.io/f1712683863228x936018447792495500/pixi-filters-v6.0.0.js"
         }
     },
     "dependencies": {

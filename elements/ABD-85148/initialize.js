@@ -1,6 +1,9 @@
 function(instance, context) {
+
+
     //intialize instance variables
     instance.data.start = true;
+    instance.data.oldProperties;
     instance.data.logging = true;
     instance.data.loadData = true;
     instance.data.randomElementID = `pixi-${Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)}`
@@ -33,7 +36,17 @@ function(instance, context) {
         backgroundColor: 0x000000,
         backgroundAlpha: 0,
     });
+    instance.data.elementIDToCheckIntersection
+    //checks if the user hasn't interacted with the canvas for a certain amount of time to shut down the canvas
+    instance.data.sleepTimeout;
+    instance.data.visible = false;
+
+
     instance.data.labelMenuSelected;
+    instance.data.timesReRendered = 0;
+    instance.data.blocking = false;
+    instance.data.canvasWidth;
+    instance.data.render = false;
     //settings for super quality
     PIXI.settings.ROUND_PIXELS = true;
     PIXI.settings.RENDER_OPTIONS.antialias = true;
@@ -49,8 +62,8 @@ function(instance, context) {
 
 
 
-
     instance.data.mainContainer = new PIXI.Container();
+
     instance.data.mainContainer.name = "mainContainer";
     instance.data.app.stage.addChild(instance.data.mainContainer);
     instance.data.dragColor = "DE3249"; //red default
@@ -98,9 +111,10 @@ function(instance, context) {
                 if (value && value !== previousValue) {
                     //loop through all of the containers on the main container (the squares)
                     instance.publishState("currently_selected_drawing", value.id)
+
                     setTimeout(() => {
                         instance.triggerEvent("label_selected")
-                    }, 100)
+                    }, 0)
 
                     value.isSelected = true;
 
@@ -117,9 +131,6 @@ function(instance, context) {
                             child.isSelected = false;
                             child.isHighlighted = false;
                             child.cursor = "pointer";
-                            let height = child.height - 1;
-                            let width = child.width - 1;
-                            let color = `0x` + child.labelColor;
 
                         }
                     });
@@ -139,7 +150,6 @@ function(instance, context) {
                 }
                 if (value == instance.data.InputModeEnum.select) {
                     instance.data.mainContainer.children.forEach(child => {
-                        child.cursor = "pointer"
                     })
                 }
                 if (value == instance.data.InputModeEnum.scale) {
@@ -153,20 +163,7 @@ function(instance, context) {
 
 
             }
-            if (prop == "rectangleBeingResized") {
-                if (value) {
 
-                }
-                else {
-                }
-            }
-            if (prop == "rectangleBeingMoved") {
-                if (value) {
-
-                }
-                else {
-                }
-            }
             obj[prop] = value;
         },
         //this is the get function. It's called when we try to access a property on the object
@@ -220,9 +217,9 @@ function(instance, context) {
             scrollbar.tint = 0xffffff;
         });
         scrollbar.addEventListener("pointerupoutside", (e) => {
-            ;
+            instance.data.app.stop();
             div.pressed = false;
-            ;
+
             scrollbar.tint = 0xffffff;
         });
         pixiApp.stage.addChild(scrollbar);
@@ -316,20 +313,21 @@ function(instance, context) {
 
     //loads & reformats Drawn Attribute Snippets. This sets the intial shapes on the webpage
     instance.data.loadDAS = function (das) {
+        instance.data.drawnSnippetsMap = new Map();
+
         das.forEach((das, index) => {
             //get all of the drawn attribute snippet data
-            let startRectX = das.get('x_coordinate_number');
-            let startRectY = das.get('y_coordinate_number');
-            let width = das.get('box_width_number');
-            let height = das.get('box_height_number');
-            let intialScale = das.get('initial_drawn_scale_number');
-            let dasID = das.get('_id');
-            //this is the unique ID of the Attribute
+            let startRectX = das.x;
+            let startRectY = das.y;
+            let width = das.width;
+            let height = das.height
+            let intialScale = das.intialDrawnScale;
+            let dasID = das.id;
             let dasLabelID = das.attributeId;
 
 
-            ;
-            ;
+
+
 
 
 
@@ -352,7 +350,15 @@ function(instance, context) {
             if (createCoord.width < 20) return;
             if (createCoord.height < 20) return;
 
-            instance.data.createExistingRect(createCoord, das.labelColor, das.attributeName, dasID, dasLabelID, hovered = false);
+            let rectCreated = instance.data.createExistingRect(createCoord, das.labelColor, das.attributeName, dasID, dasLabelID, hovered = false)
+
+
+
+
+
+            rectCreated.databaseData = das;
+
+            instance.data.drawnSnippetsMap.set(das.id, { database: das, graphic: rectCreated })
         });
     }
 
@@ -438,7 +444,7 @@ function(instance, context) {
         background.endFill();
 
         background.name = "background";
-
+        background.eventMode = 'none'; // Make the background non-interactive so we don't have cross-interactions
 
 
         // Add the background behind the label
@@ -508,128 +514,133 @@ function(instance, context) {
         //store the rectangle in a variable locally
         let rectCreated;
 
+        try {
+
+            if (color == null) {
+                color = `808080`;
+
+            }
+            //create a standard rectangle if it is not the label to be highlighted
+            if (labelID !== instance.data.proxyVariables.labelToHighlight || !labelID) {
+                rectCreated = instance.data.createBorderedRectangle(0, 0, createCoord.width - 1, createCoord.height - 1, color);
+            }
+            //create a highlighted rectangle if it is the label to be highlighted
+            else if (labelID === instance.data.proxyVariables.labelToHighlight && labelID) {
+                //subtract 1 to account for the border. Aka linestyle
 
 
-        if (color == null) {
-            color = instance.data.highlightColor;
+
+                rectCreated = instance.data.createBorderedRectangle(0, 0, createCoord.width - 1, createCoord.height - 1, `000000`);
+                rectCreated.isHighlighted = true;
+
+
+                // Calculate positions
+                const midY = createCoord.height / 2;
+                const bottomY = createCoord.height;
+                const rightX = createCoord.width - 3;
+
+                // Radius for rounded corners
+                const cornerRadius = 12; // Adjust this to match your rectangle's corner radius
+
+                // Shadow offset
+                const shadowOffset = 2;
+
+
+
+                // Create a new graphics object for the custom shadow
+                const shadow = new PIXI.Graphics();
+                shadow.lineStyle(4, 0x000000, .25); // Semi-transparent black
+
+                let triangleSize = 20; // The size of the triangle
+
+                let triangle = new PIXI.Graphics();
+                triangle.name = "resizeIndicator"
+
+                //update the mouse to be a resize cursor
+                triangle.cursor = "nwse-resize";
+                triangle.interactive = true;
+
+                let trinagleCornerRadius = 5;
+                triangle.beginFill(0x000000); // Set the color of the triangle
+
+                // Start drawing the triangle
+                triangle.moveTo(rightX - triangleSize, bottomY - 1); // start at the bttom left of the rectangle, inside the triangle
+                //move to the bottom right of the tringle, arced
+                triangle.arcTo(rightX + 2, bottomY - 1, rightX + 2, bottomY - triangleSize - 1, trinagleCornerRadius);
+                //move up to the top of the triangle
+                triangle.lineTo(rightX + 2, bottomY - triangleSize - 5);
+                //move back to the bottom left of the triangle
+                triangle.lineTo(rightX - triangleSize - 1, bottomY - 1);
+
+
+
+
+
+
+                triangle.endFill();
+
+
+                // Add the triangle to the container
+                rectCreated.addChild(triangle);
+
+                // Create a new graphics object for the new custom shadow
+                const newShadow = new PIXI.Graphics();
+                // Set the shadow style (width, color, alpha)
+                // Assuming black color for the shadow and a slight alpha for transparency
+                newShadow.lineStyle(2, 0x000000, 0.35); // Semi-transparent black
+                // Ending Y position for the new shadow, somewhere above midY
+                // Starting Y position for the new shadow (top of the shape)
+                const topY = 10;
+                const endY = 10; // Adjust this value as needed
+
+                // Draw the new custom shadow
+                newShadow.moveTo(-3.5 + shadowOffset, topY);
+                newShadow.lineTo(-3.5 + shadowOffset, bottomY - cornerRadius + shadowOffset);
+                newShadow.arcTo(-3.5 + shadowOffset, bottomY + shadowOffset, cornerRadius + shadowOffset, bottomY + shadowOffset, cornerRadius);
+                newShadow.lineTo(rightX - cornerRadius + shadowOffset, bottomY + shadowOffset);
+                newShadow.arcTo(rightX + shadowOffset, bottomY + shadowOffset, rightX + shadowOffset, bottomY - cornerRadius + shadowOffset, cornerRadius);
+                newShadow.lineTo(rightX + shadowOffset, endY); // Draw up to the specified endY
+
+                // Set the shadow style (width, color, alpha)
+                // Assuming black color for the shadow and a slight alpha for transparency
+
+
+                // Draw the custom shadow, following the same path as your line
+                shadow.moveTo(-3.5 + shadowOffset, createCoord.height + 0);
+
+                shadow.lineTo(rightX - cornerRadius + shadowOffset, bottomY + shadowOffset);
+                shadow.arcTo(rightX + shadowOffset, bottomY + shadowOffset, rightX + shadowOffset, bottomY - cornerRadius + shadowOffset, cornerRadius);
+                shadow.lineTo(rightX + shadowOffset, midY + shadowOffset);
+
+                // Apply a blur filter to the shadow to make it soft
+                //new PIXI.BlurFilter (strength, quality, resolution, kernelSize)
+                const blurFilter = new PIXI.filters.BlurFilter(8, 5); // Adjust blur strength and quality as needed
+                shadow.filters = [blurFilter];
+                newShadow.filters = [blurFilter];
+                shadow.name = "shadow";
+                newShadow.name = "newShadow";
+
+
+
+
+                rectCreated.addChild(shadow);
+                rectCreated.addChild(newShadow);
+
+
+            }
+
+            //setup custom properties to reference later
+            rectCreated.labelColor = color;
+            rectCreated.oldColor = color;
+            rectCreated.accessible = true;
+            rectCreated.name = name;
+            rectCreated.id = id;
+            rectCreated.labelUniqueID = labelID;
+            rectCreated.intialScale = instance.data.app.view.width / instance.data.intialWebpageWidth;
+
+        } catch (e) {
+            console.error(`failed setting up existing rect ui`, e)
         }
-        //create a standard rectangle if it is not the label to be highlighted
-        if (labelID !== instance.data.proxyVariables.labelToHighlight) {
-            rectCreated = instance.data.createBorderedRectangle(0, 0, createCoord.width - 1, createCoord.height - 1, color);
-        }
-        //create a highlighted rectangle if it is the label to be highlighted
-        else if (labelID === instance.data.proxyVariables.labelToHighlight) {
-            //subtract 1 to account for the border. Aka linestyle
-
-
-            rectCreated = instance.data.createBorderedRectangle(0, 0, createCoord.width - 1, createCoord.height - 1, `000000`);
-            rectCreated.isHighlighted = true;
-
-
-            // Calculate positions
-            const midY = createCoord.height / 2;
-            const bottomY = createCoord.height;
-            const rightX = createCoord.width - 3;
-
-            // Radius for rounded corners
-            const cornerRadius = 12; // Adjust this to match your rectangle's corner radius
-
-            // Shadow offset
-            const shadowOffset = 2;
-
-
-
-            // Create a new graphics object for the custom shadow
-            const shadow = new PIXI.Graphics();
-            shadow.lineStyle(4, 0x000000, .25); // Semi-transparent black
-
-            let triangleSize = 20; // The size of the triangle
-
-            let triangle = new PIXI.Graphics();
-            triangle.name = "resizeIndicator"
-
-            //update the mouse to be a resize cursor
-            triangle.cursor = "nwse-resize";
-            triangle.interactive = true;
-
-            let trinagleCornerRadius = 5;
-            triangle.beginFill(0x000000); // Set the color of the triangle
-
-            // Start drawing the triangle
-            triangle.moveTo(rightX - triangleSize, bottomY - 1); // start at the bttom left of the rectangle, inside the triangle
-            //move to the bottom right of the tringle, arced
-            triangle.arcTo(rightX + 2, bottomY - 1, rightX + 2, bottomY - triangleSize - 1, trinagleCornerRadius);
-            //move up to the top of the triangle
-            triangle.lineTo(rightX + 2, bottomY - triangleSize - 5);
-            //move back to the bottom left of the triangle
-            triangle.lineTo(rightX - triangleSize - 1, bottomY - 1);
-
-
-
-
-
-
-            triangle.endFill();
-
-
-            // Add the triangle to the container
-            rectCreated.addChild(triangle);
-
-            // Create a new graphics object for the new custom shadow
-            const newShadow = new PIXI.Graphics();
-            // Set the shadow style (width, color, alpha)
-            // Assuming black color for the shadow and a slight alpha for transparency
-            newShadow.lineStyle(2, 0x000000, 0.35); // Semi-transparent black
-            // Ending Y position for the new shadow, somewhere above midY
-            // Starting Y position for the new shadow (top of the shape)
-            const topY = 10;
-            const endY = 10; // Adjust this value as needed
-
-            // Draw the new custom shadow
-            newShadow.moveTo(-3.5 + shadowOffset, topY);
-            newShadow.lineTo(-3.5 + shadowOffset, bottomY - cornerRadius + shadowOffset);
-            newShadow.arcTo(-3.5 + shadowOffset, bottomY + shadowOffset, cornerRadius + shadowOffset, bottomY + shadowOffset, cornerRadius);
-            newShadow.lineTo(rightX - cornerRadius + shadowOffset, bottomY + shadowOffset);
-            newShadow.arcTo(rightX + shadowOffset, bottomY + shadowOffset, rightX + shadowOffset, bottomY - cornerRadius + shadowOffset, cornerRadius);
-            newShadow.lineTo(rightX + shadowOffset, endY); // Draw up to the specified endY
-
-            // Set the shadow style (width, color, alpha)
-            // Assuming black color for the shadow and a slight alpha for transparency
-
-
-            // Draw the custom shadow, following the same path as your line
-            shadow.moveTo(-3.5 + shadowOffset, createCoord.height + 0);
-
-            shadow.lineTo(rightX - cornerRadius + shadowOffset, bottomY + shadowOffset);
-            shadow.arcTo(rightX + shadowOffset, bottomY + shadowOffset, rightX + shadowOffset, bottomY - cornerRadius + shadowOffset, cornerRadius);
-            shadow.lineTo(rightX + shadowOffset, midY + shadowOffset);
-
-            // Apply a blur filter to the shadow to make it soft
-            //new PIXI.BlurFilter (strength, quality, resolution, kernelSize)
-            const blurFilter = new PIXI.filters.BlurFilter(8, 5); // Adjust blur strength and quality as needed
-            shadow.filters = [blurFilter];
-            newShadow.filters = [blurFilter];
-            shadow.name = "shadow";
-            newShadow.name = "newShadow";
-
-
-
-
-            rectCreated.addChild(shadow);
-            rectCreated.addChild(newShadow);
-
-
-        }
-
-        //setup custom properties to reference later
-        rectCreated.labelColor = color;
-        rectCreated.oldColor = color;
-        rectCreated.accessible = true;
-        rectCreated.name = name;
-        rectCreated.id = id;
-        rectCreated.labelUniqueID = labelID;
-        rectCreated.intialScale = instance.data.app.view.width / instance.data.intialWebpageWidth;
-
 
 
 
@@ -638,9 +649,11 @@ function(instance, context) {
             new PIXI.Point(createCoord.startRectX, createCoord.startRectY)
         );
         instance.data.mainContainer.addChild(rectCreated);
+
         if (instance.data.displayLabelText && rectCreated.name || hovered || rectCreated.id === instance.data.labelMenuSelected) {
 
             let { label, background } = instance.data.addLabel(rectCreated);
+
 
 
 
@@ -689,6 +702,7 @@ function(instance, context) {
                     new PIXI.Point(x - 3, y + background.height),// back outside on the left side of the shape
                 ]
             }
+            background.hitArea = new PIXI.Polygon([new PIXI.Point(0, 0)]) // top left corner of outer rectangle
 
 
             // Create the polygon for the hit area
@@ -743,51 +757,16 @@ function(instance, context) {
         }
         instance.data.rectangles.push(rectCreated);
 
+        try {
+            //add event listeners to the rectangle
+            rectCreated.interactive = true;
 
-        //add event listeners to the rectangle
-        rectCreated.addEventListener("pointermove", event => {
-
-
-            const x = event.global.x - instance.data.mainContainer.x;
-            const y = event.global.y - instance.data.mainContainer.y;
-            let rectScaledWidth = rectCreated.width
-            let rectScaledHeight = rectCreated.height
-            let rectScaledX = rectCreated.x
-            let rectScaledY = rectCreated.y
-            const isInBottomRightCorner =
-                x >= rectScaledX + rectScaledWidth - 20 &&
-                y >= rectScaledY + rectScaledHeight - 20;
-
-            if (!rectCreated.isHighlighted && !instance.data.proxyVariables.rectangleBeingResized && !instance.data.proxyVariables.rectangleBeingMoved && !instance.data.readOnly) {
-                if (instance.data.proxyVariables.inputMode != instance.data.InputModeEnum.select) {
-                    instance.data.inputMode = instance.data.InputModeEnum.select;
-                    instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.select;
-                    rectCreated.cursor = "pointer";
-                }
-            }
-
-            if (rectCreated.isHighlighted && !isInBottomRightCorner && !instance.data.readOnly) {
-                if (instance.data.proxyVariables.inputMode != instance.data.InputModeEnum.move) {
-                    instance.data.inputMode = instance.data.InputModeEnum.move;
-                    instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.move;
-                    rectCreated.cursor = "move";
-                }
-            }
-            if (rectCreated.isHighlighted && isInBottomRightCorner && !instance.data.readOnly) {
-                if (instance.data.proxyVariables.inputMode != instance.data.InputModeEnum.scale) {
-                    instance.data.inputMode = instance.data.InputModeEnum.scale;
-                    instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.scale;
-                    rectCreated.cursor = "nwse-resize";
-                }
+            //check to see what event listneres are active
+            rectCreated.addEventListener("pointermove", event => {
 
 
-            }
-        }, { passive: true });
-        rectCreated.addEventListener("pointerdown", e => {
-            e.stopPropagation();
-            if (e.data.button === 0) {
-                const x = e.global.x - instance.data.mainContainer.x;
-                const y = e.global.y - instance.data.mainContainer.y;
+                const x = event.global.x - instance.data.mainContainer.x;
+                const y = event.global.y - instance.data.mainContainer.y;
                 let rectScaledWidth = rectCreated.width
                 let rectScaledHeight = rectCreated.height
                 let rectScaledX = rectCreated.x
@@ -795,137 +774,194 @@ function(instance, context) {
                 const isInBottomRightCorner =
                     x >= rectScaledX + rectScaledWidth - 20 &&
                     y >= rectScaledY + rectScaledHeight - 20;
-                //APP-3038
-                const mouseX = e.data.global.x;
-                const mouseY = e.data.global.y;
 
-                // Get the local coordinates of `rectCreated` within its container
-                const rectLocal = rectCreated.toLocal(new PIXI.Point(mouseX, mouseY));
 
-                // Calculate the relative position
-                const relativeX = rectLocal.x;
-                const relativeY = rectLocal.y;
-                instance.publishState('selectedx', relativeX);
-                instance.publishState('selectedy', relativeY);
-                //
-
-                if (!rectCreated.isSelected) {
-                    instance.data.proxyVariables.selectedRectangle = rectCreated;
-                    instance.data.selectedRectangle = rectCreated;
+                if (!rectCreated.isHighlighted && !instance.data.proxyVariables.rectangleBeingResized && !instance.data.proxyVariables.rectangleBeingMoved && !instance.data.readOnly) {
+                    if (instance.data.proxyVariables.inputMode != instance.data.InputModeEnum.select) {
+                        instance.data.inputMode = instance.data.InputModeEnum.select;
+                        instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.select;
+                        rectCreated.cursor = "pointer";
+                    }
                 }
 
-
-
-                //trigger the move start if the rectangle is highlighted
                 if (rectCreated.isHighlighted && !isInBottomRightCorner && !instance.data.readOnly) {
-
-                    if (instance.data.proxyVariables.inputMode !== instance.data.InputModeEnum.move) {
+                    if (instance.data.proxyVariables.inputMode != instance.data.InputModeEnum.move) {
                         instance.data.inputMode = instance.data.InputModeEnum.move;
                         instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.move;
                         rectCreated.cursor = "move";
                     }
-                    instance.data.proxyVariables.rectangleBeingMoved = rectCreated;
-
-                    //get the start position of the rectangle
-                    startPosition = e.target.position;
-
-
-                    //store the mouse position relative to the rectangle click position
-                    //this is so that the rectangle will move with the mouse, and not jump to the mouse position
-                    //clicked in the world at 500 subtractr the start position of the rectangle at 100 -- we clicked 400 px in the rectangle
-                    rectCreated.relativeMouseX =
-                        e.data.global.x - startPosition.x - instance.data.mainContainer.x;
-                    rectCreated.relativeMouseY =
-                        e.data.global.y - startPosition.y - instance.data.mainContainer.y;
-                    //store the original position of the rectangle so we know if we need to push an update to the server
-                    rectCreated.originalMovePositionX = rectCreated.position.x;
-                    rectCreated.originalMovePositionY = rectCreated.position.y;
-                    rectCreated.isMoving = true;
-
                 }
-
-
-                //trigger the resize start if the rectangle is highlighted and in the bottom right corner
                 if (rectCreated.isHighlighted && isInBottomRightCorner && !instance.data.readOnly) {
-                    startPosition = e.target.position;
-
-
-                    if (instance.data.proxyVariables.inputMode !== instance.data.InputModeEnum.resize) {
-                        instance.data.inputMode = instance.data.InputModeEnum.resize;
-                        instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.resize;
+                    if (instance.data.proxyVariables.inputMode != instance.data.InputModeEnum.scale) {
+                        instance.data.inputMode = instance.data.InputModeEnum.scale;
+                        instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.scale;
                         rectCreated.cursor = "nwse-resize";
                     }
-                    instance.data.proxyVariables.rectangleBeingResized = rectCreated;
-
-                    //get the start width and height of the rectangle
-                    let startWidth = rectCreated.width;
-                    let startHeight = rectCreated.height;
-
-                    //store the mouse position relative to the rectangle resize position
-                    //this is so that the rectangle will resize with the mouse, and not jump to the mouse position
-                    //clicked in the world at 500 subtractr the start position of the rectangle at 100 -- we clicked 400 px in the rectangle
-                    rectCreated.relativeMouseX =
-                        e.data.global.x - (startPosition.x + startWidth) - instance.data.mainContainer.x;
-                    rectCreated.relativeMouseY =
-                        e.data.global.y - (startPosition.y + startHeight) - instance.data.mainContainer.y;
-
-                    //store the original size of the rectangle so we know if we need to push an update to the server
-                    rectCreated.originalResizeWidth = startWidth;
-                    rectCreated.originalResizeHeight = startHeight;
-                    rectCreated.startMouseX = e.data.global.x - instance.data.mainContainer.x;
-                    rectCreated.startMouseY = e.data.global.y - instance.data.mainContainer.y;
-
-                    rectCreated.isResizing = true;
-                    instance.data.proxyVariables.rectangleBeingResized = rectCreated;
-
-
-
 
 
                 }
-            }
-        }, { passive: true });
-        rectCreated.addEventListener("pointerup", e => {
-            e.stopPropagation();
-            let drawnScale = instance.data.app.view.width / instance.data.intialWebpageWidth;
+            }, { passive: true });
+            rectCreated.addEventListener("pointerdown", e => {
+                e.stopPropagation();
+                if (e.data.button === 0) {
+                    const x = e.global.x - instance.data.mainContainer.x;
+                    const y = e.global.y - instance.data.mainContainer.y;
+                    let rectScaledWidth = rectCreated.width
+                    let rectScaledHeight = rectCreated.height
+                    let rectScaledX = rectCreated.x
+                    let rectScaledY = rectCreated.y
+                    const isInBottomRightCorner =
+                        x >= rectScaledX + rectScaledWidth - 20 &&
+                        y >= rectScaledY + rectScaledHeight - 20;
+                    //APP-3038
+                    const mouseX = e.data.global.x;
+                    const mouseY = e.data.global.y;
 
-            if (instance.data.proxyVariables.rectangleBeingMoved && !instance.data.readOnly) {
+                    // Get the local coordinates of `rectCreated` within its container
+                    const rectLocal = rectCreated.toLocal(new PIXI.Point(mouseX, mouseY));
+
+                    // Calculate the relative position
+                    const relativeX = rectLocal.x;
+                    const relativeY = rectLocal.y;
+                    instance.publishState('selectedx', relativeX);
+                    instance.publishState('selectedy', relativeY);
+                    //
+
+                    if (!rectCreated.isSelected) {
+                        instance.data.proxyVariables.selectedRectangle = rectCreated;
+                        instance.data.selectedRectangle = rectCreated;
+                    }
 
 
 
-                // Store the rectangle being moved in a variable
-                let rectbeingMoved = instance.data.proxyVariables.rectangleBeingMoved;
-                // Store the rect's current x and y position in variables
-                let rectX = rectbeingMoved.x;
-                let rectY = rectbeingMoved.y;
+                    //trigger the move start if the rectangle is highlighted
+                    if (rectCreated.isHighlighted && !isInBottomRightCorner && !instance.data.readOnly) {
+
+
+                        if (instance.data.proxyVariables.inputMode !== instance.data.InputModeEnum.move) {
+                            instance.data.inputMode = instance.data.InputModeEnum.move;
+                            instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.move;
+                            rectCreated.cursor = "move";
+                        }
+                        instance.data.proxyVariables.rectangleBeingMoved = rectCreated;
+
+                        //get the start position of the rectangle
+                        startPosition = e.target.position;
+
+
+                        //store the mouse position relative to the rectangle click position
+                        //this is so that the rectangle will move with the mouse, and not jump to the mouse position
+                        //clicked in the world at 500 subtractr the start position of the rectangle at 100 -- we clicked 400 px in the rectangle
+                        rectCreated.relativeMouseX =
+                            e.data.global.x - startPosition.x - instance.data.mainContainer.x;
+                        rectCreated.relativeMouseY =
+                            e.data.global.y - startPosition.y - instance.data.mainContainer.y;
+                        //store the original position of the rectangle so we know if we need to push an update to the server
+                        rectCreated.originalMovePositionX = rectCreated.position.x;
+                        rectCreated.originalMovePositionY = rectCreated.position.y;
+                        rectCreated.isMoving = true;
+
+                    }
+
+
+                    //trigger the resize start if the rectangle is highlighted and in the bottom right corner
+                    if (rectCreated.isHighlighted && isInBottomRightCorner && !instance.data.readOnly) {
+                        startPosition = e.target.position;
+
+
+                        if (instance.data.proxyVariables.inputMode !== instance.data.InputModeEnum.resize) {
+                            instance.data.inputMode = instance.data.InputModeEnum.resize;
+                            instance.data.proxyVariables.inputMode = instance.data.InputModeEnum.resize;
+                            rectCreated.cursor = "nwse-resize";
+                        }
+                        instance.data.proxyVariables.rectangleBeingResized = rectCreated;
+
+                        //get the start width and height of the rectangle
+                        let startWidth = rectCreated.width;
+                        let startHeight = rectCreated.height;
+
+                        //store the mouse position relative to the rectangle resize position
+                        //this is so that the rectangle will resize with the mouse, and not jump to the mouse position
+                        //clicked in the world at 500 subtractr the start position of the rectangle at 100 -- we clicked 400 px in the rectangle
+                        rectCreated.relativeMouseX =
+                            e.data.global.x - (startPosition.x + startWidth) - instance.data.mainContainer.x;
+                        rectCreated.relativeMouseY =
+                            e.data.global.y - (startPosition.y + startHeight) - instance.data.mainContainer.y;
+
+                        //store the original size of the rectangle so we know if we need to push an update to the server
+                        rectCreated.originalResizeWidth = startWidth;
+                        rectCreated.originalResizeHeight = startHeight;
+                        rectCreated.startMouseX = e.data.global.x - instance.data.mainContainer.x;
+                        rectCreated.startMouseY = e.data.global.y - instance.data.mainContainer.y;
+
+                        rectCreated.isResizing = true;
+                        instance.data.proxyVariables.rectangleBeingResized = rectCreated;
 
 
 
-                //check if the rectangle has moved
-                if (rectbeingMoved.originalMovePositionX != rectX || rectbeingMoved.originalMovePositionY != rectY) {
-                    let borderWidth = rectbeingMoved.lineWidth;
 
 
-                    //if it has, update the rectangle's position in the database
-                    instance.data.updateDrawnLabel(instance.data.proxyVariables.rectangleBeingMoved.x, instance.data.proxyVariables.rectangleBeingMoved.y, instance.data.proxyVariables.rectangleBeingMoved.width + 1, instance.data.proxyVariables.rectangleBeingMoved.height + 1, drawnScale, instance.data.proxyVariables.rectangleBeingMoved.id)
+                    }
+                }
+            }, { passive: true });
+            rectCreated.addEventListener("pointerup", e => {
+                e.stopPropagation();
+                let drawnScale = instance.data.app.view.width / instance.data.intialWebpageWidth;
+
+                if (instance.data.proxyVariables.rectangleBeingMoved && !instance.data.readOnly) {
 
 
 
+                    // Store the rectangle being moved in a variable
+                    let rectbeingMoved = instance.data.proxyVariables.rectangleBeingMoved;
+                    // Store the rect's current x and y position in variables
+                    let rectX = rectbeingMoved.x;
+                    let rectY = rectbeingMoved.y;
+
+
+
+                    //check if the rectangle has moved
+                    if (rectbeingMoved.originalMovePositionX != rectX || rectbeingMoved.originalMovePositionY != rectY) {
+                        let borderWidth = rectbeingMoved.lineWidth;
+                        try {
+                            rectbeingMoved.savingDrawingData = {
+                                "x": rectbeingMoved.x,
+                                "y": rectbeingMoved.y,
+                                "width": rectbeingMoved.width + 1,
+                                "height": rectbeingMoved.height + 1,
+                                "labelColor": rectbeingMoved.labelColor,
+                                "id": rectbeingMoved.id,
+                                "labelUniqueID": rectbeingMoved.labelUniqueID,
+                                "intialScale": instance.data.app.view.width / instance.data.intialWebpageWidth
+                            }
+                        }
+                        catch (e) {
+                            console.error(`error saving the moved rectangle`, e)
+                        }
+
+
+                        //if it has, update the rectangle's position in the database
+                        instance.data.updateDrawnLabel(instance.data.proxyVariables.rectangleBeingMoved.x, instance.data.proxyVariables.rectangleBeingMoved.y, instance.data.proxyVariables.rectangleBeingMoved.width + 1, instance.data.proxyVariables.rectangleBeingMoved.height + 1, drawnScale, instance.data.proxyVariables.rectangleBeingMoved.id)
+
+
+
+                    }
+
+                    instance.data.rectangleBeingMoved = null;
+                    instance.data.proxyVariables.rectangleBeingMoved = null;
                 }
 
-                instance.data.rectangleBeingMoved = null;
+
                 instance.data.proxyVariables.rectangleBeingMoved = null;
-            }
+                instance.data.rectangleBeingResized = null;
+                instance.data.proxyVariables.rectangleBeingResized = null;
 
-            if (instance.data.proxyVariables.rectangleBeingResized && !instance.data.readOnly) {
+            }, { passive: true });
+        }
+        catch (e) {
+            console.error(`error setting up event listeners for the rectangle`, e)
+        }
 
-
-                instance.data.updateDrawnLabel(instance.data.proxyVariables.rectangleBeingResized.x, instance.data.proxyVariables.rectangleBeingResized.y, instance.data.proxyVariables.rectangleBeingResized.width, instance.data.proxyVariables.rectangleBeingResized.height, drawnScale, instance.data.proxyVariables.rectangleBeingResized.id)
-            }
-            instance.data.proxyVariables.rectangleBeingMoved = null;
-            instance.data.rectangleBeingResized = null;
-            instance.data.proxyVariables.rectangleBeingResized = null;
-        }, { passive: true });
         return rectCreated;
 
 
@@ -1003,10 +1039,6 @@ function(instance, context) {
         instance.data.mainContainer.addChild(resizeRectange);
     };
 
-    //triggers the selection of a rectangle. Probably not necessary anymore because of the proxy variables
-    instance.data.selectRect = function (rectangle) {
-        instance.data.proxyVariables.selectedRectangle = rectangle;
-    };
 
     //this generates our standard rectangle style. It's used when we create a new rectangle. Simply returns the graphic object that can be used elsewhere
     instance.data.createBorderedRectangle = function (
@@ -1069,7 +1101,6 @@ function(instance, context) {
         bodyContent.append("height", height);
         bodyContent.append("initial_drawn_scale", initial_drawn_scale)
         bodyContent.append("drawn_label_snippet", drawn_label_snippet);
-
         // Fetch the data from the API endpoint using POST method
         fetch(`https://app.syllabus.io/${instance.data.dynamicFetchParam}api/1.1/wf/update-drawn-label`, {
             method: "POST",
@@ -1084,50 +1115,13 @@ function(instance, context) {
                 ;
                 throw error
             }
-            );
+            ).finally(() => {
+
+
+            });
     }
 
-    instance.data.visibleObserver = new IntersectionObserver(async (entries, observer) => {
-        try {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    instance.data.app = new PIXI.Application({
-                        resizeTo: instance.canvas,
-                        backgroundColor: 0x000000,
-                        backgroundAlpha: 0,
-                    });
-                    instance.data.start = true;
-
-                    // Generate a random number and publish it as a state
-                    const randomNumber = Math.random();
-                    instance.publishState('reset', randomNumber);
-                    instance.data.visible = true;
-                    instance.publishState('visible', true);
-                    instance.data.mainElementObserver.observe(instance.canvas);
-                } else {
-                    // Call your destroy function and clean up resources
-                    if (instance.data.app && instance.data.app.renderer) {
-                        instance.data.app.destroy(true);
-                        const elementsToRemove = document.querySelectorAll(`div.pixi-container[id=${instance.data.randomElementID}]`);
-
-                        elementsToRemove.forEach(element => {
-                            element.remove();
-                        });
-                        // Clean up any other resources associated with the PIXI Application here
-                        instance.data.app = null; // Reset the app reference
-                        instance.data.mainElementObserver.unobserve(instance.canvas);
-                        instance.data.visible = false;
-                        instance.publishState('visible', false);
-                    }
-                }
-            });
-        } catch (error) {
-            console.error('An error occurred:', error);
-        }
-    });
-
-    // Start observing the target element
-    instance.data.visibleObserver.observe(instance.canvas);
+    
 
     // Initialize the ResizeObserver to handle element resizes
     instance.data.mainElementObserver = new ResizeObserver((entries) => {
@@ -1153,4 +1147,71 @@ function(instance, context) {
     // Observe the target element for resizing
     instance.data.mainElementObserver.observe(instance.canvas);
 
+    //hash function for comparing objects
+    instance.data.hashObject = function (obj) {
+        return `${obj.attributeName}-${obj.attributeId}-${obj.labelColor}-${obj.x}-${obj.y}-${obj.intialDrawnScale}-${obj.height}-${obj.width}-${obj.id}`;
+
+    }
+
+    instance.data.compareArrays = function (arr1, arr2) {
+        if (!arr1 && !arr2) return false; // Both arrays are undefined, no differences found
+        if (!arr1 || !arr2) return true; // One of the arrays is undefined, differences found
+
+        if (arr1.length !== arr2.length) return true;
+
+        const hashSet = new Set(arr1.map(instance.data.hashObject));
+
+        for (const item of arr2) {
+            const hash = instance.data.hashObject(item);
+            if (!hashSet.has(hash)) {
+                return true; // Found an item that's different
+            }
+        }
+
+        return false; // No differences found
+    }
+    instance.canvas.addEventListener("pointermove", (e) => {
+        instance.data.wakeCanvas(instance.data.app);
+    });
+    instance.canvas.addEventListener("pointerout", (e) => {
+        if (!instance.data.ele.pressed) {
+            instance.data.sleepCanvas(instance.data.app);
+
+        }
+    });
+    instance.data.sleepCanvas = function (pixiApp) {
+        try {
+            clearTimeout(instance.data.sleepTimeout);
+            instance.data.sleepTimeout = setTimeout(() => {
+                console.log(`sleeping the canvas,`, instance.canvas)
+                pixiApp.stage.interactiveChildren = false;
+                pixiApp.ticker.stop();
+            }, 5000)
+
+
+
+        }
+
+        catch (e) {
+            console.error(`error sleeping the canvas`, e)
+        }
+    }
+    instance.data.wakeCanvas = function (pixiApp) {
+        if (!pixiApp) {
+            throw new Error(`pixiApp is not defined to wake the canvas`)
+        }
+        try {
+            clearTimeout(instance.data.sleepTimeout);
+            pixiApp.stage.interactiveChildren = true;
+            if (!pixiApp.ticker.started) {
+                console.log(`waking the canvas,`, instance.canvas)
+
+                pixiApp.ticker.start();
+            }
+        }
+
+        catch (e) {
+            console.error(`error waking the canvas`, e)
+        }
+    }
 }

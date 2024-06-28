@@ -49,16 +49,6 @@
             "rank": 2,
             "value": "text"
         },
-        "ABG": {
-            "caption": "Attribute Colors",
-            "doc": "The list of colors that each label has, in the same order as the labels list.",
-            "editor": "DynamicValue",
-            "is_list": true,
-            "name": "attribute_colors",
-            "optional": true,
-            "rank": 4,
-            "value": "text"
-        },
         "ABI": {
             "caption": "Webpage Screenshot URL",
             "default_val": "https://s3.amazonaws.com/appforest_uf/f1673111494359x270505643516280260/screencapture-kanbanize-lean-management-improvement-a3-problem-solving-2022-12-22-11_26_31.png",
@@ -66,36 +56,7 @@
             "editor": "DynamicValue",
             "name": "webpage_screenshot",
             "optional": true,
-            "rank": 5,
-            "value": "text"
-        },
-        "ABJ": {
-            "caption": "Font",
-            "default_val": "Inter",
-            "doc": "The font of all text in the canvas.",
-            "editor": "Dropdown",
-            "name": "font",
-            "optional": true,
-            "options": "Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Helvetica,Impact,Inter,Tahoma,Times New Roman,Verdana,Georgia",
-            "rank": 9
-        },
-        "ABK": {
-            "caption": "Font Size",
-            "default_val": "20",
-            "doc": "The font size (as a number it converts to px, but as a string, equivalents are '26px','20pt','160%' or '1.6em')",
-            "editor": "DynamicValue",
-            "name": "font_size",
-            "optional": true,
-            "rank": 10,
-            "value": "text"
-        },
-        "ABL": {
-            "caption": "Font Color",
-            "doc": "HEX code with no # before",
-            "editor": "DynamicValue",
-            "name": "labelFontColor",
-            "optional": true,
-            "rank": 11,
+            "rank": 3,
             "value": "text"
         },
         "ABY": {
@@ -104,36 +65,8 @@
             "editor": "DynamicValue",
             "name": "highlight_color",
             "optional": true,
-            "rank": 12,
+            "rank": 7,
             "value": "text"
-        },
-        "ABZ": {
-            "caption": "Drag Color",
-            "doc": "Not working: change the color while dragging a shape. experimental HEX code with no # before",
-            "editor": "DynamicValue",
-            "name": "drag_color",
-            "optional": true,
-            "rank": 15,
-            "value": "text"
-        },
-        "ABa": {
-            "caption": "Resize Color",
-            "doc": "Not working: change the color while resizing a shape. HEX code with no # before",
-            "editor": "DynamicValue",
-            "name": "resize_color",
-            "optional": true,
-            "rank": 16,
-            "value": "text"
-        },
-        "ABd": {
-            "caption": "Labels/Attributes",
-            "doc": "The list of labels/attributes that each drawing has, this should have the same order as the list of drawings.",
-            "editor": "DynamicValue",
-            "is_list": true,
-            "name": "attributes",
-            "optional": true,
-            "rank": 3,
-            "value": "custom_data_ABF"
         },
         "ABe": {
             "caption": "Drawn Attribute Snippets",
@@ -150,7 +83,7 @@
             "editor": "custom_type",
             "name": "account_webpage_type",
             "optional": true,
-            "rank": 6
+            "rank": 4
         },
         "ABm": {
             "caption": "Account webpage",
@@ -158,7 +91,7 @@
             "editor": "DynamicValue",
             "name": "account_webpage",
             "optional": true,
-            "rank": 7,
+            "rank": 5,
             "value": "custom_data_ABl"
         },
         "ABo": {
@@ -166,7 +99,7 @@
             "doc": "0-1 value, ie. 50% is .5",
             "editor": "DynamicValue",
             "name": "highlight_color_alpha",
-            "rank": 13,
+            "rank": 8,
             "value": "number"
         },
         "ABq": {
@@ -174,7 +107,7 @@
             "doc": "0-1 value, ie. 50% is .5",
             "editor": "DynamicValue",
             "name": "normal_color_alpha",
-            "rank": 14,
+            "rank": 9,
             "value": "number"
         },
         "ABr": {
@@ -183,7 +116,7 @@
             "editor": "DynamicValue",
             "name": "label_to_highlight",
             "optional": true,
-            "rank": 8,
+            "rank": 6,
             "value": "custom_data_ABF"
         },
         "ABy": {
@@ -192,7 +125,7 @@
             "doc": "Toggles the visibility of text being rendered on labels",
             "editor": "DynamicValue",
             "name": "display_label_text",
-            "rank": 17,
+            "rank": 10,
             "value": "boolean"
         },
         "ABz": {
@@ -200,7 +133,7 @@
             "default_val": false,
             "editor": "DynamicValue",
             "name": "readonly",
-            "rank": 18,
+            "rank": 11,
             "value": "boolean"
         },
         "ACK": {
@@ -208,7 +141,7 @@
             "default_val": 0,
             "editor": "DynamicValue",
             "name": "reset",
-            "rank": 19,
+            "rank": 12,
             "value": "number"
         },
         "ACb": {
@@ -217,7 +150,44 @@
             "editor": "DynamicValue",
             "name": "label_menu_active",
             "optional": true,
-            "rank": 20,
+            "rank": 13,
+            "value": "text"
+        },
+        "ACc": {
+            "caption": "Chunked Images",
+            "doc": "The screenshots images in 5000px chunks, in order",
+            "editor": "DynamicValue",
+            "is_list": true,
+            "name": "chunked_images",
+            "optional": true,
+            "rank": 14,
+            "value": "image"
+        },
+        "ACd": {
+            "caption": "webpage scaled width",
+            "doc": "This is for chunked images. The CDN scaled webpages width based on a max height cap of 8192, so we need to get this value to normalize the drawn attribute shapes",
+            "editor": "DynamicValue",
+            "name": "webpage_scaled_width",
+            "optional": true,
+            "rank": 15,
+            "value": "number"
+        },
+        "ACg": {
+            "caption": "Debug",
+            "default_val": false,
+            "doc": "Disables console logs and other debugging",
+            "editor": "DynamicValue",
+            "name": "debug",
+            "rank": 16,
+            "value": "boolean"
+        },
+        "ACh": {
+            "caption": "Element ID to check intersection",
+            "doc": "The element to check for Intersection on. This is for preloading out-of-view",
+            "editor": "DynamicValue",
+            "name": "element_id_to_check_intersection",
+            "optional": true,
+            "rank": 17,
             "value": "text"
         }
     },

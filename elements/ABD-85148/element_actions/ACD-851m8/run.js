@@ -1,12 +1,9 @@
 function(instance, properties, context) {
-
-
-  //Load any data 
+try{
 instance.data.mainContainer.position.y = properties.ypadding + 0;
-
-
-  //Do the operation
-
-
-
+    }
+            
+            catch(e){
+                throw e
+            }
 }
